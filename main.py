@@ -1,13 +1,19 @@
-import os
-from pathlib import Path
+import subprocess
+import sys
 
-import cv2
+command = [
+    sys.executable,
+    "segment_images.py",
+    "--sam_model_type",
+    "vit_h",
+    "--checkpoint",
+    "D:/sam_checkpoints/sam_vit_h_4b8939.pth",
+    "--points_per_side",
+    "8",
+    "--data_path",
+    "D:/GithubProjects/tensorflow_datasets/cifar10/test",
+    "--size",
+    "3",
+]
 
-# load_input_data(dataset="cifar10", size=5)
-
-sample_image = cv2.imread("./outputs/sample_images/cifar10/test/7.png")
-
-image_dir = Path("outputs", "annotated_images", "test")
-os.makedirs(image_dir, exist_ok=True)
-os.chdir(image_dir)
-os.makedirs(Path("masks"), exist_ok=True)
+subprocess.run(command)
