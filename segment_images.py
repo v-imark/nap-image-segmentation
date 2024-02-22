@@ -48,19 +48,11 @@ def register_sam(
     return mask_generator, sam, DEVICE
 
 
-def compute_masks(image, generator: SamAutomaticMaskGenerator):
+def compute_masks(image, name, generator: SamAutomaticMaskGenerator):
     """Segments an image into masks using SAM-model"""
-    # start_time = time.time()
-    print("Segmenting image...")
+    print(f"Segmenting image {name}...")
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     masks = generator.generate(image_rgb)
-    # end_time = time.time()
-    # elapsed_time = end_time - start_time
-    # print("Image segmentation complete.", f"Elapsed time: {elapsed_time} seconds.")
-
-    # Todo: exclude small masks
-
-    # Todo: exclude overlapping masks using IoU
 
     return masks
 
@@ -74,9 +66,9 @@ def save_masks(masks, image, img_name, output_path):
         masked_img = cv2.bitwise_and(
             image, image, mask=mask["segmentation"].astype(np.uint8)
         )
-        mask_name = f"{img_name}_mask_{count}.mask"
-        cv2.imwrite(str(Path(masks_path, f"{mask_name}.jpeg")), masked_img)
-        csv_data.append([str(masks_path), mask_name, "jpeg", mask["area"]])
+        mask_name = f"{img_name}_mask_{count}.jpeg"
+        cv2.imwrite(str(Path(masks_path, mask_name)), masked_img)
+        csv_data.append([str(masks_path), mask_name, mask["area"]])
 
     with open(Path(output_path, "metadata.csv"), "w", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
@@ -102,10 +94,10 @@ def main(args):
     # Loop through the image files and read them
     for i in range(int(args.size)):
         if str(img_folder_files[i]).lower().endswith((".png", ".jpg", ".jpeg")):
-            img_name, _ = img_folder_files[i].name.split(".")
+            img_name, file_type = img_folder_files[i].name.split(".")
             img = cv2.imread(str(img_folder_files[i]))
 
-            masks = compute_masks(img, generator)
+            masks = compute_masks(img, f"{img_name}.{file_type}", generator)
             save_masks(masks, img, img_name, output_path)
 
 
