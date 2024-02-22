@@ -9,11 +9,30 @@ import torch
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 
 parser = argparse.ArgumentParser(description="A script that segments multiple images")
-parser.add_argument("--sam_model_type", help="First argument")
-parser.add_argument("--checkpoint", help="Second argument")
-parser.add_argument("--points_per_side", type=int, help="Optional third argument")
-parser.add_argument("--data_path", help="Optional third argument")
-parser.add_argument("--size", type=int, help="Number of images to segment")
+parser.add_argument(
+    "--sam_model_type",
+    help="Segment-Anything model type.",
+    choices=["vit_h", "vit_l", "vit_b"],
+    default="vit_h",
+)
+parser.add_argument(
+    "--checkpoint",
+    help="Path to SAM checkpoint.",
+    default="D:/sam_checkpoints/sam_vit_h_4b8939.pth",
+)
+parser.add_argument(
+    "--points_per_side",
+    type=int,
+    help="The number of points to be sampled along one side of the image. "
+    "The total number of points is points_per_side**2.",
+    default=32,
+)
+parser.add_argument(
+    "--data_path",
+    help="Path to the folder containing the images",
+    default="D:/GithubProjects/tensorflow_datasets/cifar10/test",
+)
+parser.add_argument("--size", type=int, help="Number of images to segment", default=3)
 
 
 def register_sam(
