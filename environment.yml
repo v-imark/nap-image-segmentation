@@ -19,13 +19,13 @@ dependencies:
   - pytorch::pytorch
   - pytorch::torchvision
   - opencv
-  - pycocotools
   - matplotlib
   - onnxruntime
   - onnx
   - pytorch::pytorch-cuda=11.7
   - pandas
   - supervision
+  - pre-commit
 
   - pip>=23
   - pip:
