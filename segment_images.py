@@ -52,7 +52,7 @@ def save_masks(masks, image, img_name, output_path):
 
     count = 0
     csv_data = []
-    for mask in masks:
+    for count, mask in enumerate(masks):
         masked_img = cv2.bitwise_and(
             image, image, mask=mask["segmentation"].astype(np.uint8)
         )
