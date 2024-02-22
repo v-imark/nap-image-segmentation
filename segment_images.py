@@ -69,7 +69,6 @@ def save_masks(masks, image, img_name, output_path):
     masks_path = Path(output_path, img_name, "masks")
     os.makedirs(masks_path, exist_ok=True)
 
-    count = 0
     csv_data = []
     for count, mask in enumerate(masks):
         masked_img = cv2.bitwise_and(
@@ -77,9 +76,7 @@ def save_masks(masks, image, img_name, output_path):
         )
         mask_name = f"{img_name}_mask_{count}.mask"
         cv2.imwrite(str(Path(masks_path, f"{mask_name}.jpeg")), masked_img)
-
-        csv_data = csv_data.append([str(masks_path), mask_name, "jpeg", mask["area"]])
-        count += 1
+        csv_data.append([str(masks_path), mask_name, "jpeg", mask["area"]])
 
     with open(Path(output_path, "metadata.csv"), "w", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
