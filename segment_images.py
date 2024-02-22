@@ -93,7 +93,7 @@ def main(args):
 
     # Loop through the image files and read them
     for i in range(int(args.size)):
-        if str(img_folder_files[i]).lower().endswith((".png", ".jpg", ".jpeg")):
+        if img_folder_files[i].suffix in [".png", ".jpg", ".jpeg"]:
             img_name, file_type = img_folder_files[i].name.split(".")
             img = cv2.imread(str(img_folder_files[i]))
 
