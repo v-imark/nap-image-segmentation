@@ -29,10 +29,27 @@ parser.add_argument(
 )
 parser.add_argument(
     "--data_path",
-    help="Path to the folder containing the images",
-    default="D:/GithubProjects/tensorflow_datasets/cifar10/test",
+    help="Path to the tensorflow_datasets folder",
+    default="D:/GithubProjects/tensorflow_datasets",
 )
 parser.add_argument("--size", type=int, help="Number of images to segment", default=3)
+parser.add_argument(
+    "--dataset",
+    help="Which dataset to use.",
+    default="cifar10",
+    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012"],
+)
+parser.add_argument(
+    "--split",
+    help="Which dataset split to use.",
+    default="test",
+)
+
+parser.add_argument(
+    "--output",
+    help="Path to where the output will be stored",
+    default="./outputs",
+)
 
 
 def register_sam(
@@ -82,11 +99,10 @@ def main(args):
         points_per_side=args.points_per_side,
     )
 
-    img_folder = Path(args.data_path)
+    img_folder = Path(args.data_path, args.dataset, args.split)
 
-    # Will change these later
-    output_name = f"cifar10_{args.size}"
-    output_path = Path("outputs", output_name)
+    output_name = f"{args.dataset}_{args.split}_{args.size}"
+    output_path = Path(args.output, output_name)
     os.makedirs(output_path, exist_ok=True)
 
     img_folder_files = list(img_folder.iterdir())
