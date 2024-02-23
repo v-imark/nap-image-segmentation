@@ -8,6 +8,9 @@ import numpy as np
 import torch
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 
+from utils.exclude_small_masks import exclude_small_masks
+from utils.save_filter_data import save_filter_data
+
 parser = argparse.ArgumentParser(description="A script that segments multiple images")
 parser.add_argument(
     "--sam_model_type",
@@ -44,11 +47,16 @@ parser.add_argument(
     help="Which dataset split to use.",
     default="test",
 )
-
 parser.add_argument(
     "--output",
     help="Path to where the output will be stored",
     default="./outputs",
+)
+parser.add_argument(
+    "--thresh",
+    type=float,
+    help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
+    default=0.01,
 )
 
 
@@ -76,8 +84,12 @@ def compute_masks(image, generator: SamAutomaticMaskGenerator):
 def save_masks(masks, image, img_name, output_path):
     masks_path = Path(output_path, img_name, "masks")
     os.makedirs(masks_path, exist_ok=True)
+    csv_path = Path(output_path, "metadata.csv")
 
     csv_data = []
+    if not os.path.exists(csv_path):
+        csv_data.append(["path", "name", "area"])
+
     for count, mask in enumerate(masks):
         masked_img = cv2.bitwise_and(
             image, image, mask=mask["segmentation"].astype(np.uint8)
@@ -86,7 +98,7 @@ def save_masks(masks, image, img_name, output_path):
         cv2.imwrite(str(Path(masks_path, mask_name)), masked_img)
         csv_data.append([str(masks_path), mask_name, mask["area"]])
 
-    with open(Path(output_path, "metadata.csv"), "w", newline="") as csv_file:
+    with open(csv_path, "a", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerows(csv_data)
 
@@ -100,7 +112,9 @@ def main(args):
 
     img_folder = Path(args.data_path, args.dataset, args.split)
 
-    output_name = f"{args.dataset}_{args.split}_{args.size}"
+    output_name = (
+        f"{args.dataset}_{args.split}_{args.size}_{args.points_per_side}_{args.thresh}"
+    )
     output_path = Path(args.output, output_name)
     os.makedirs(output_path, exist_ok=True)
 
@@ -116,7 +130,9 @@ def main(args):
         img = cv2.imread(str(img_folder_files[i]))
         print(f"Segmenting {img_name}.{file_type}...")
         masks = compute_masks(img, generator)
-        save_masks(masks, img, img_name, output_path)
+        masks_filtered = exclude_small_masks(masks, args.thresh)
+        save_masks(masks_filtered, img, img_name, output_path)
+        save_filter_data(masks, masks_filtered, args.thresh, output_path)
 
 
 if __name__ == "__main__":

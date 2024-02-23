@@ -16,6 +16,7 @@ parser.add_argument(
     choices=[
         "cifar10",
         "mnist",
+        "oxford_flowers102",
         "imagenet2012",
     ],
 )
@@ -33,7 +34,12 @@ def dir_path(string):
 
 
 def main(args):
-    tfds.load(args.dataset, data_dir=dir_path(args.data_path), split=args.split)
+    tfds.load(
+        args.dataset,
+        data_dir=dir_path(args.data_path),
+        split=args.split,
+        as_supervised=True,
+    )
 
 
 if __name__ == "__main__":
