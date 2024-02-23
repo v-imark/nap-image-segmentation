@@ -8,12 +8,7 @@ channels:
 
 dependencies:
   - python=3.10
-  - cudatoolkit=11.8
-  - pytorch::pytorch=2.2
-  - pytorch::torchaudio=2.2
-  - pytorch::torchvision=0.17
   - opencv
-  - pre-commit
   - pip>=23
   - pip:
       - tensorflow
@@ -22,5 +17,7 @@ dependencies:
       - black
       - supervision
       - numpy
-      - pandas
-      - matplotlib
+      - pre-commit
+      - torch==2.2.1+cu121
+      - torchaudio==2.2.1+cu121
+      - torchvision==0.17.1+cu121

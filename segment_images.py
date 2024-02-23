@@ -65,9 +65,8 @@ def register_sam(
     return mask_generator, sam, DEVICE
 
 
-def compute_masks(image, name, generator: SamAutomaticMaskGenerator):
+def compute_masks(image, generator: SamAutomaticMaskGenerator):
     """Segments an image into masks using SAM-model"""
-    print(f"Segmenting image {name}...")
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     masks = generator.generate(image_rgb)
 
@@ -109,12 +108,15 @@ def main(args):
 
     # Loop through the image files and read them
     for i in range(int(args.size)):
-        if img_folder_files[i].suffix in [".png", ".jpg", ".jpeg"]:
-            img_name, file_type = img_folder_files[i].name.split(".")
-            img = cv2.imread(str(img_folder_files[i]))
+        if img_folder_files[i].suffix not in [".png", ".jpg", ".jpeg"]:
+            print("File is not an image, skipping...")
+            continue
 
-            masks = compute_masks(img, f"{img_name}.{file_type}", generator)
-            save_masks(masks, img, img_name, output_path)
+        img_name, file_type = img_folder_files[i].name.split(".")
+        img = cv2.imread(str(img_folder_files[i]))
+        print(f"Segmenting {img_name}.{file_type}...")
+        masks = compute_masks(img, generator)
+        save_masks(masks, img, img_name, output_path)
 
 
 if __name__ == "__main__":
