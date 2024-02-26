@@ -113,7 +113,7 @@ def main(args):
     img_folder = Path(args.data_path, args.dataset, args.split)
 
     output_name = (
-        f"{args.dataset}_{args.split}_{args.size}_{args.points_per_side}_{args.thresh}"
+        f"{args.dataset}_{args.split}_{args.size}_points-per-side_{args.points_per_side}_min-area_{args.thresh}"
     )
     output_path = Path(args.output, output_name)
     os.makedirs(output_path, exist_ok=True)
