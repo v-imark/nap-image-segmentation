@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 
-def save_masks(masks, image, img_name, output_path, args, initial_size):
+def save_masks(masks, image, img_name, output_path, args, initial_size, annotated_path):
     masks_path = Path(output_path, img_name, "masks")
     os.makedirs(masks_path, exist_ok=True)
     json_path = Path(output_path, "metadata.json")
@@ -33,6 +33,7 @@ def save_masks(masks, image, img_name, output_path, args, initial_size):
             "final": len(masks),
         },
         "masks": masks_data,
+        "annotated_image": str(annotated_path) if args.annotate else "",
     }
 
     try:
