@@ -6,4 +6,4 @@ def exclude_small_masks(masks, threshold=0.01):
         if mask["area"] >= min_area:
             filtered_masks.append(mask)
 
-    return sorted(filtered_masks, key=lambda x: x["area"], reverse=True)
+    return filtered_masks
