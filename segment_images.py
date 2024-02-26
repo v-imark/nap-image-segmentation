@@ -53,7 +53,7 @@ parser.add_argument(
     default="./outputs",
 )
 parser.add_argument(
-    "--thresh",
+    "--min_area",
     type=float,
     help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
     default=0.01,
