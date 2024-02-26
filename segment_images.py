@@ -6,6 +6,7 @@ import cv2  # type: ignore
 import torch
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 
+from utils.annotate_image import annotate_image
 from utils.exclude_small_masks import exclude_small_masks
 from utils.save_masks import save_masks
 
@@ -56,6 +57,12 @@ parser.add_argument(
     help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
     default=0.01,
 )
+parser.add_argument(
+    "-a",
+    "--annotate",
+    action="store_true",
+    help="Enable annotating of image with the computed masks",
+)
 
 
 def register_sam(
@@ -105,7 +112,14 @@ def main(args):
         print(f"Segmenting {img_name}.{file_type}...")
         masks = compute_masks(img, generator)
         masks_filtered = exclude_small_masks(masks, args.min_area)
-        save_masks(masks_filtered, img, img_name, output_path, args, len(masks))
+
+        annotated_path = Path(output_path, f"{img_name}_annotated.{file_type}")
+        save_masks(
+            masks_filtered, img, img_name, output_path, args, len(masks), annotated_path
+        )
+
+        if args.annotate:
+            annotate_image(masks_filtered, img, annotated_path)
 
 
 if __name__ == "__main__":
