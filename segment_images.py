@@ -23,13 +23,6 @@ parser.add_argument(
     default="D:/sam_checkpoints/sam_vit_h_4b8939.pth",
 )
 parser.add_argument(
-    "--points_per_side",
-    type=int,
-    help="The number of points to be sampled along one side of the image. "
-    "The total number of points is points_per_side**2.",
-    default=32,
-)
-parser.add_argument(
     "--data_path",
     help="Path to the tensorflow_datasets folder",
     default="D:/GithubProjects/tensorflow_datasets",
@@ -38,7 +31,7 @@ parser.add_argument("--size", type=int, help="Number of images to segment", defa
 parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
-    default="cifar10",
+    default="oxford_flowers102",
     choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012"],
 )
 parser.add_argument(
@@ -52,16 +45,57 @@ parser.add_argument(
     default="./outputs",
 )
 parser.add_argument(
-    "--min_area",
-    type=float,
-    help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
-    default=0.01,
-)
-parser.add_argument(
     "-a",
     "--annotate",
     action="store_true",
     help="Enable annotating of image with the computed masks",
+)
+parser.add_argument(
+    "--points_per_side",
+    type=int,
+    help="The number of points to be sampled along one side of the image. "
+    "The total number of points is points_per_side**2.",
+    default=32,
+)
+parser.add_argument(
+    "--points_per_batch",
+    type=int,
+    help="Sets the number of points run simultaneously by the model. Higher numbers may be faster but use more GPU "
+    "memory.",
+    default=64,
+)
+parser.add_argument(
+    "--pred_iou_thresh",
+    type=float,
+    help="Sets the number of points run simultaneously by the model. Higher numbers may be faster but use more GPU "
+    "memory.",
+    default=0.88,
+)
+parser.add_argument(
+    "--stability_score_thresh",
+    type=float,
+    help="A filtering threshold in [0,1], using the stability of the mask under changes to the cutoff used to "
+    "binarize the model's mask predictions.",
+    default=0.95,
+)
+parser.add_argument(
+    "--crop_n_layers",
+    type=int,
+    help="If >0, mask prediction will be run again on crops of the image. Sets the number of layers to run, "
+    "where each layer has 2**i_layer number of image crops.",
+    default=0,
+)
+parser.add_argument(
+    "--crop_n_layers_downscale_factor",
+    type=int,
+    help="The number of points-per-side sampled in layer n is scaled down by crop_n_points_downscale_factor**n.",
+    default=1,
+)
+parser.add_argument(
+    "--min_area",
+    type=float,
+    help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
+    default=0.01,
 )
 
 
@@ -70,11 +104,24 @@ def register_sam(
     checkpoint_path="D:/sam_checkpoints/sam_vit_h_4b8939.pth",
     device="cuda",
     points_per_side=32,
+    points_per_batch=64,
+    pred_iou_thresh=0.88,
+    stability_score_thresh=0.95,
+    crop_n_layers=0,
+    crop_n_layers_downscale_factor=1,
 ):
     DEVICE = torch.device(device if torch.cuda.is_available() else "cpu")
     sam = sam_model_registry[model_type](checkpoint=checkpoint_path)
     sam.to(device=DEVICE)
-    mask_generator = SamAutomaticMaskGenerator(sam, points_per_side=points_per_side)
+    mask_generator = SamAutomaticMaskGenerator(
+        sam,
+        points_per_side=points_per_side,
+        points_per_batch=points_per_batch,
+        pred_iou_thresh=pred_iou_thresh,
+        stability_score_thresh=stability_score_thresh,
+        crop_n_layers=crop_n_layers,
+        crop_n_points_downscale_factor=crop_n_layers_downscale_factor,
+    )
     return mask_generator, sam, DEVICE
 
 
@@ -91,10 +138,16 @@ def main(args):
         model_type=args.sam_model_type,
         checkpoint_path=args.checkpoint,
         points_per_side=args.points_per_side,
+        points_per_batch=args.points_per_batch,
+        pred_iou_thresh=args.pred_iou_thresh,
+        stability_score_thresh=args.stability_score_thresh,
+        crop_n_layers=args.crop_n_layers,
+        crop_n_layers_downscale_factor=args.crop_n_layers_downscale_factor,
     )
 
     img_folder = Path(args.data_path, args.dataset, args.split)
 
+    # Not sure how to name the folder when there is a lot of arguments. Maybe hash?
     output_name = f"{args.dataset}_{args.split}_{args.size}_points-per-side_{args.points_per_side}_min-area_{args.min_area}"
     output_path = Path(args.output, output_name)
     os.makedirs(output_path, exist_ok=True)
