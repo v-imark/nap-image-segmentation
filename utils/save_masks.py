@@ -19,18 +19,31 @@ def save_masks(masks, image, img_name, output_path, args, initial_size, annotate
         mask_name = f"{img_name}_mask_{count}.jpeg"
         cv2.imwrite(str(Path(masks_path, mask_name)), masked_img)
 
-        mask_data = {"name": mask_name, "path": str(masks_path), "area": mask["area"]}
+        mask_data = {
+            "name": mask_name,
+            "path": str(masks_path),
+            "area": mask["area"],
+            "predicted_iou": mask["predicted_iou"],
+            "stability_score": mask["stability_score"],
+        }
         masks_data.append(mask_data)
 
     json_entry = {
         "name": img_name,
         "dataset": args.dataset,
         "split": args.split,
-        "points_per_side": args.points_per_side,
-        "min_area": args.min_area,
+        "params": {
+            "points_per_side": args.points_per_side,
+            "points_per_batch": args.points_per_batch,
+            "pred_iou_thresh": args.pred_iou_thresh,
+            "stability_score_thresh": args.stability_score_thresh,
+            "crop_n_layers": args.crop_n_layers,
+            "crop_n_layers_downscale_factor": args.crop_n_layers_downscale_factor,
+            "min_area": args.min_area,
+        },
         "segmentation_info": {
-            "initial": initial_size,
-            "final": len(masks),
+            "initial_size": initial_size,
+            "final_size": len(masks),
         },
         "masks": masks_data,
         "annotated_image": str(annotated_path) if args.annotate else "",
@@ -39,11 +52,12 @@ def save_masks(masks, image, img_name, output_path, args, initial_size, annotate
     try:
         with open(json_path, "r") as json_file:
             json_data = json.load(json_file)
+            if len(json_data) == args.size:
+                json_data = []  # Truncate result from previous run.
     except FileNotFoundError:
         json_data = []
 
     json_data.append(json_entry)
 
-    # Step 3: Write the updated data back to the JSON file
     with open(json_path, "w") as json_file:
         json.dump(json_data, json_file, indent=2)
