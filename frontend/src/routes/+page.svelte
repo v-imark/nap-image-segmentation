@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import ParamControls from "$lib/components/ParamControls.svelte"
+</script>
+
+<div class="flex flex-row">
+    <div class=basis-1/3>
+        <ParamControls />
+    </div>
+</div>
