@@ -67,8 +67,7 @@ parser.add_argument(
 parser.add_argument(
     "--pred_iou_thresh",
     type=float,
-    help="Sets the number of points run simultaneously by the model. Higher numbers may be faster but use more GPU "
-    "memory.",
+    help="A filtering threshold in [0,1], using the model's predicted mask quality.",
     default=0.88,
 )
 parser.add_argument(
@@ -133,6 +132,20 @@ def compute_masks(image, generator: SamAutomaticMaskGenerator):
     return masks
 
 
+def get_folder_name(args):
+    amg_args = [
+        f"pps-{args.points_per_side}",
+        f"ppb-{args.points_per_batch}",
+        f"pit-{args.pred_iou_thresh}",
+        f"sst-{args.stability_score_thresh}",
+        f"cnl-{args.crop_n_layers}",
+        f"cnldf-{args.crop_n_layers_downscale_factor}",
+        f"ma-{args.min_area}",
+    ]
+    folder_name = "_".join(amg_args)
+    return f"{args.dataset}_{folder_name}"
+
+
 def main(args):
     generator, _, _ = register_sam(
         model_type=args.sam_model_type,
@@ -147,8 +160,7 @@ def main(args):
 
     img_folder = Path(args.data_path, args.dataset, args.split)
 
-    # Not sure how to name the folder when there is a lot of arguments. Maybe hash?
-    output_name = f"{args.dataset}_{args.split}_{args.size}_points-per-side_{args.points_per_side}_min-area_{args.min_area}"
+    output_name = get_folder_name(args)
     output_path = Path(args.output, output_name)
     os.makedirs(output_path, exist_ok=True)
 
@@ -173,6 +185,8 @@ def main(args):
 
         if args.annotate:
             annotate_image(masks_filtered, img, annotated_path)
+
+    print(f"Done! Result saved in: {str(output_path)}")
 
 
 if __name__ == "__main__":
