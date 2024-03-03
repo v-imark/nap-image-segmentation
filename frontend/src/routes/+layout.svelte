@@ -1,5 +1,7 @@
 <script>
-	import '../app.pcss';
+	import '../app.pcss'
 </script>
 
-<slot />
+<div class="h-screen">
+	<slot />
+</div>
