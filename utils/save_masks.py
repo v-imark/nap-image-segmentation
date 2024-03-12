@@ -25,6 +25,7 @@ def save_masks(masks, image, img_name, output_path, args, initial_size, annotate
             "area": mask["area"],
             "predicted_iou": mask["predicted_iou"],
             "stability_score": mask["stability_score"],
+            "crob_box": mask["crop_box"],
         }
         masks_data.append(mask_data)
 

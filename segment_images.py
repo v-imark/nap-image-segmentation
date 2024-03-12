@@ -27,12 +27,12 @@ parser.add_argument(
     help="Path to the tensorflow_datasets folder",
     default="D:/GithubProjects/tensorflow_datasets",
 )
-parser.add_argument("--size", type=int, help="Number of images to segment", default=3)
+parser.add_argument("--size", type=int, help="Number of images to segment", default=1)
 parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
     default="oxford_flowers102",
-    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012"],
+    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012", "images"],
 )
 parser.add_argument(
     "--split",
@@ -94,7 +94,7 @@ parser.add_argument(
     "--min_area",
     type=float,
     help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
-    default=0.01,
+    default=0.00,
 )
 
 
@@ -168,7 +168,7 @@ def main(args):
 
     # Loop through the image files and read them
     for i in range(int(args.size)):
-        if img_folder_files[i].suffix not in [".png", ".jpg", ".jpeg"]:
+        if img_folder_files[i].suffix.lower() not in [".png", ".jpg", ".jpeg"]:
             print("File is not an image, skipping...")
             continue
 
