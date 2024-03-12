@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 
-def save_masks(masks, image, img_name, output_path, args, initial_size, annotated_path):
+def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path):
     masks_path = Path(output_path, img_name, "masks")
     os.makedirs(masks_path, exist_ok=True)
     json_path = Path(output_path, "metadata.json")
@@ -25,6 +25,7 @@ def save_masks(masks, image, img_name, output_path, args, initial_size, annotate
             "area": mask["area"],
             "predicted_iou": mask["predicted_iou"],
             "stability_score": mask["stability_score"],
+            "crop_box": mask["crop_box"],
         }
         masks_data.append(mask_data)
 
@@ -42,8 +43,9 @@ def save_masks(masks, image, img_name, output_path, args, initial_size, annotate
             "min_area": args.min_area,
         },
         "segmentation_info": {
-            "initial_size": initial_size,
-            "final_size": len(masks),
+            "initial_size": sizes[0],
+            "after_min_area_filter": sizes[1],
+            "after_iou_filter": len(masks),
         },
         "masks": masks_data,
         "annotated_image": str(annotated_path) if args.annotate else "",
