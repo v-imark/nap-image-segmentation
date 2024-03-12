@@ -8,6 +8,7 @@ from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 
 from utils.annotate_image import annotate_image
 from utils.exclude_small_masks import exclude_small_masks
+from utils.intersection_over_union import exclude_masks_by_iou
 from utils.save_masks import save_masks
 
 parser = argparse.ArgumentParser(description="A script that segments multiple images")
@@ -27,7 +28,7 @@ parser.add_argument(
     help="Path to the tensorflow_datasets folder",
     default="D:/GithubProjects/tensorflow_datasets",
 )
-parser.add_argument("--size", type=int, help="Number of images to segment", default=3)
+parser.add_argument("--size", type=int, help="Number of images to segment", default=1)
 parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
@@ -96,6 +97,12 @@ parser.add_argument(
     help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
     default=0.01,
 )
+parser.add_argument(
+    "--iou_thresh",
+    type=float,
+    help="Threshold for excluding masks that excede certain IoU with another mask.",
+    default=0.85,
+)
 
 
 def register_sam(
@@ -141,6 +148,7 @@ def get_folder_name(args):
         f"cnl-{args.crop_n_layers}",
         f"cnldf-{args.crop_n_layers_downscale_factor}",
         f"ma-{args.min_area}",
+        f"it-{args.iou_thresh}",
     ]
     folder_name = "_".join(amg_args)
     return f"{args.dataset}_{folder_name}"
@@ -176,15 +184,24 @@ def main(args):
         img = cv2.imread(str(img_folder_files[i]))
         print(f"Segmenting {img_name}.{file_type}...")
         masks = compute_masks(img, generator)
-        masks_filtered = exclude_small_masks(masks, args.min_area)
+        masks_filtered_by_area = exclude_small_masks(masks, args.min_area)
+        masks_filtered_by_iou = exclude_masks_by_iou(
+            masks_filtered_by_area, args.iou_thresh
+        )
 
         annotated_path = Path(output_path, f"{img_name}_annotated.{file_type}")
         save_masks(
-            masks_filtered, img, img_name, output_path, args, len(masks), annotated_path
+            masks_filtered_by_iou,
+            img,
+            img_name,
+            output_path,
+            args,
+            [len(masks), len(masks_filtered_by_area)],
+            annotated_path,
         )
 
         if args.annotate:
-            annotate_image(masks_filtered, img, annotated_path)
+            annotate_image(masks_filtered_by_iou, img, annotated_path)
 
     print(f"Done! Result saved in: {str(output_path)}")
 
