@@ -12,16 +12,14 @@ def calculate_iou(mask1, mask2):
 
 def exclude_masks_by_iou(masks, threshold):
     """Excludes masks that exceeds IoU threshold"""
-    masks = np.array(masks)
-    num_masks = masks.shape[0]
-    indices_to_keep = []
+    num_masks = len(masks)
+    masks_to_keep = []
 
     for i in range(num_masks):
         ious = np.array(
             [calculate_iou(masks[i], masks[j]) for j in range(num_masks) if i != j]
         )
         if np.all(ious <= threshold):
-            indices_to_keep.append(i)
+            masks_to_keep.append(masks[i])
 
-    filtered_masks = masks[indices_to_keep]
-    return filtered_masks.tolist()
+    return masks_to_keep

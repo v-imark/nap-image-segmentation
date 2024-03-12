@@ -43,7 +43,7 @@ def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path)
             "min_area": args.min_area,
         },
         "segmentation_info": {
-            "initial_size": sizes[0],
+            "after_sam": sizes[0],
             "after_min_area_filter": sizes[1],
             "after_iou_filter": len(masks),
         },
