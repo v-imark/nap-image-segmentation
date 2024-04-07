@@ -7,13 +7,14 @@ export interface Param {
 	crop_n_layers: number
 	crop_n_layers_downscale_factor: number
 	min_area: number
+	iou_thresh: number
 }
 
 export type Dataset = 'oxford_flowers102' | 'imagenet2012'
 
 export interface MetadataObject {
 	name: string
-	dataset: string
+	dataset: Dataset
 	split: string
 	params: {
 		points_per_side: number
@@ -23,10 +24,12 @@ export interface MetadataObject {
 		crop_n_layers: number
 		crop_n_layers_downscale_factor: number
 		min_area: number
+		iou_thresh: number
 	}
 	segmentation_info: {
-		initial_size: number
-		final_size: number
+		after_sam: number
+		after_min_area_filter: number
+		after_iou_filter: number
 	}
 	masks: {
 		name: string
@@ -35,6 +38,7 @@ export interface MetadataObject {
 		predicted_iou: number
 		stability_score: number
 		crop_box: number[]
+		class_id: number
 	}[]
 	annotated_image: string
 }
@@ -42,3 +46,7 @@ export interface MetadataObject {
 export type Metadata = {
 	[paramId: string]: MetadataObject
 }
+
+// type Colors = { [key: string]: string }
+export const COLORS = ['ring-[#e41a1c]', 'ring-[#377eb8]', 'ring-[#4daf4a]']
+export const BG_COLORS = ['bg-[#e41a1c]', 'bg-[#377eb8]', 'bg-[#4daf4a]']

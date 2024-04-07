@@ -1,36 +1,58 @@
 <script lang="ts">
-	import { getImageUrl, getRelativePath } from '../../api'
-	import { all_data, data, dataset, selected_params } from '../../stores'
+	import { toggleTable } from '../../stores'
 	import { Separator } from './ui/separator'
-	import { Label } from './ui/label'
-	import Params from './Params.svelte'
 	import MaskTable from './MaskTable.svelte'
-	import MaskChart from './MaskChart.svelte'
+	import MaskGrid from './MaskGrid.svelte'
+	import AnnotatedWithSliders from './AnnotatedWithSliders.svelte'
+	import type { Dataset, MetadataObject } from '../../types'
 
-	export let imageName = ''
-
-	$: src = getImageUrl(imageName, $dataset)
+	export let data: MetadataObject[]
+	export let dataset: Dataset
+	let metaData1 = data[0]
+	let metaData2 = data[1]
+	let metaData3 = data[2]
 </script>
 
-{#await $data then d}
-	<div class="flex h-full flex-row items-stretch space-x-3">
-		<div class="flex basis-1/5 flex-col items-center space-y-3">
-			<img {src} alt={imageName} class="h-60" />
-			<Label>Original</Label>
-			<Separator />
-			<img src={getRelativePath(d ? d.annotated_image : '')} alt={'Annotated'} class="h-60" />
-			<Label>Annotated</Label>
-			<Separator />
-			<Params />
+<div class="flex h-full flex-row items-stretch space-x-3">
+	<div class="flex h-full basis-4/12 flex-col">
+		<div class="basis-1/4 pb-3">
+			<AnnotatedWithSliders {dataset} {data} bind:selectedMetaData={metaData1} />
 		</div>
-		<Separator orientation="vertical" />
-		<div class="h-full basis-2/5 overflow-y-auto">
-			<MaskTable />
-		</div>
-		<Separator orientation="vertical" />
-		<div class="flex h-full basis-2/5 flex-col overflow-y-auto">
-			<MaskChart />
-			<Separator />
+		<Separator />
+		<div class="basis-3/4 overflow-y-auto">
+			{#if $toggleTable}
+				<MaskTable data={metaData1} />
+			{:else}
+				<MaskGrid metaData={metaData1} />
+			{/if}
 		</div>
 	</div>
-{/await}
+	<Separator orientation="vertical" />
+	<div class="flex h-full basis-4/12 flex-col">
+		<div class="basis-1/4 pb-3">
+			<AnnotatedWithSliders {dataset} {data} bind:selectedMetaData={metaData2} />
+		</div>
+		<Separator />
+		<div class="basis-3/4 overflow-y-auto">
+			{#if $toggleTable}
+				<MaskTable data={metaData2} />
+			{:else}
+				<MaskGrid metaData={metaData2} />
+			{/if}
+		</div>
+	</div>
+	<Separator orientation="vertical" />
+	<div class="flex h-full basis-4/12 flex-col">
+		<div class="basis-1/4 pb-3">
+			<AnnotatedWithSliders {dataset} {data} bind:selectedMetaData={metaData3} />
+		</div>
+		<Separator />
+		<div class="basis-3/4 overflow-y-auto">
+			{#if $toggleTable}
+				<MaskTable data={metaData3} />
+			{:else}
+				<MaskGrid metaData={metaData3} />
+			{/if}
+		</div>
+	</div>
+</div>

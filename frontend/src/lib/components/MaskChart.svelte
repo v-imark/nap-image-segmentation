@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Chart from 'chart.js/auto'
 	import { PARAM_IDS } from '../../api'
-	import { all_data, selected_name } from '../../stores'
+	import { all_data, run, selected_name } from '../../stores'
 	import type { Metadata } from '../../types'
 
 	const formatData = (data: Metadata) =>
-		PARAM_IDS.map((id) => {
+		PARAM_IDS($run).map((id) => {
 			const masks = data[id] ? data[id].masks : []
 			return {
 				label: id,
@@ -18,7 +18,7 @@
 		const chart = new Chart(ctx, {
 			type: 'bubble',
 			data: {
-				labels: PARAM_IDS,
+				labels: PARAM_IDS($run),
 				datasets: formatData(data)
 			},
 			options: {

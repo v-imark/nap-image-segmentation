@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from './ui/select'
-	import { selected_params } from '../../stores'
+	import { run, selected_params } from '../../stores'
 	import { PARAM_IDS } from '../../api'
 
 	$: selected = { value: $selected_params }
@@ -13,7 +13,7 @@
 		<Select.Value placeholder="Select params" />
 	</Select.Trigger>
 	<Select.Content>
-		{#each PARAM_IDS as id}
+		{#each PARAM_IDS($run) as id}
 			<Select.Item value={id}>{id}</Select.Item>
 		{/each}
 	</Select.Content>

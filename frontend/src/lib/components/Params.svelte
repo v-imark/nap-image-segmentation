@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { EXAMPLE_PARAMS } from '../../api'
-	import { selected_params } from '../../stores'
+	import { run, selected_params } from '../../stores'
 	import type { Param } from '../../types'
 	import { Label } from './ui/label'
 
-	$: params = EXAMPLE_PARAMS.find((val) => val.id == $selected_params) as Param
+	$: params = EXAMPLE_PARAMS[$run].find((val) => val.id == $selected_params) as Param
 </script>
 
 <div class="flex w-full flex-col space-y-1.5">

@@ -56,7 +56,7 @@ parser.add_argument(
     type=int,
     help="The number of points to be sampled along one side of the image. "
     "The total number of points is points_per_side**2.",
-    default=32,
+    default=8,
 )
 parser.add_argument(
     "--points_per_batch",
@@ -101,7 +101,7 @@ parser.add_argument(
     "--iou_thresh",
     type=float,
     help="Threshold for excluding masks that excede certain IoU with another mask.",
-    default=0.85,
+    default=1.0,
 )
 
 
@@ -184,12 +184,13 @@ def main(args):
         img = cv2.imread(str(img_folder_files[i]))
         print(f"Segmenting {img_name}.{file_type}...")
         masks = compute_masks(img, generator)
+
         masks_filtered_by_area = exclude_small_masks(masks, args.min_area)
         masks_filtered_by_iou = exclude_masks_by_iou(
             masks_filtered_by_area, args.iou_thresh
         )
-
-        annotated_path = Path(output_path, f"{img_name}_annotated.{file_type}")
+        print(type(masks_filtered_by_iou[1]["segmentation"]))
+        annotated_path = Path(output_path, f"{img_name}_annotated.png")
         save_masks(
             masks_filtered_by_iou,
             img,

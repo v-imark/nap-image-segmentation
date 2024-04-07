@@ -1,33 +1,42 @@
 <script lang="ts">
 	import { getRelativePath } from '../../api'
-	import { data } from '../../stores'
+	import { BG_COLORS, COLORS, type MetadataObject } from '../../types'
 	import * as Table from './ui/table'
+
+	export let data: MetadataObject
 </script>
 
-{#await $data then d}
-	<Table.Root class="h-full overflow-y-auto">
-		<Table.Caption class="caption-top text-left"
-			>Total masks: {d.segmentation_info.initial_size}</Table.Caption
-		>
-		<Table.Header class="sticky top-0 bg-white">
-			<Table.Row>
-				<Table.Head>Mask</Table.Head>
-				<Table.Head>Area</Table.Head>
-				<Table.Head>Predicted IoU</Table.Head>
-				<Table.Head>Stability Score</Table.Head>
+<Table.Root class="h-full overflow-y-auto">
+	<Table.Caption class="caption-top text-left">
+		After SAM: {data.segmentation_info.after_sam}, After min-area: {data.segmentation_info
+			.after_min_area_filter}, After IoU: {data.segmentation_info.after_iou_filter}
+	</Table.Caption>
+	<Table.Header class="sticky top-0 bg-white">
+		<Table.Row>
+			<Table.Head>Mask</Table.Head>
+			<Table.Head>Area</Table.Head>
+			<Table.Head>Predicted IoU</Table.Head>
+			<Table.Head>Stability Score</Table.Head>
+		</Table.Row>
+	</Table.Header>
+	<Table.Body>
+		{#each data.masks as mask}
+			<Table.Row
+				class="{BG_COLORS[mask.class_id]} bg-opacity-30 hover:{BG_COLORS[
+					mask.class_id
+				]} hover:bg-opacity-45"
+			>
+				<Table.Cell>
+					<img src={`${getRelativePath(mask.path)}/${mask.name}`} alt={mask.name} class="h-16" />
+				</Table.Cell>
+				<Table.Cell class="font-medium"
+					>{mask.area} ({(100 * (mask.area / (mask.crop_box[2] * mask.crop_box[3]))).toFixed(
+						3
+					)}%)</Table.Cell
+				>
+				<Table.Cell class="font-medium">{mask.predicted_iou.toFixed(3)}</Table.Cell>
+				<Table.Cell class="font-medium">{mask.stability_score.toFixed(3)}</Table.Cell>
 			</Table.Row>
-		</Table.Header>
-		<Table.Body>
-			{#each d.masks as mask}
-				<Table.Row class="h">
-					<Table.Cell>
-						<img src={`${getRelativePath(mask.path)}/${mask.name}`} alt={mask.name} class="h-32" />
-					</Table.Cell>
-					<Table.Cell class="font-medium">{mask.area}</Table.Cell>
-					<Table.Cell class="font-medium">{mask.predicted_iou}</Table.Cell>
-					<Table.Cell class="font-medium">{mask.stability_score}</Table.Cell>
-				</Table.Row>
-			{/each}
-		</Table.Body>
-	</Table.Root>
-{/await}
+		{/each}
+	</Table.Body>
+</Table.Root>
