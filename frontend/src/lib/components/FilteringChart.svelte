@@ -1,57 +1,71 @@
 <script lang="ts">
-	import { getImageUrl, getPercentage } from '../../api'
-	import { hovered_bar, run } from '../../stores'
+	import { sortBars } from '../../api'
+	import { ascending, barSorting, dataset, hovered_bar, updateAllMetaData } from '../../stores'
 	import type { MetadataObject } from '../../types'
 	import FilteringBar from './FilteringBar.svelte'
+	import MasksInfo from './MasksInfo.svelte'
+	import Button from './ui/button/button.svelte'
 	import { Label } from './ui/label'
+	import { Separator } from './ui/separator'
+	import { Slider } from './ui/slider'
 
 	export let data: MetadataObject[]
 
 	const max = Math.max(...data.map((val) => val.segmentation_info.after_sam))
+	const width = 700 / data.length
+	let selectedMetaData = data
+	$: min_area_val = [0]
+	$: iou_threshold_val = [1]
+	let disabled = false
+	let h_bar: MetadataObject = selectedMetaData[0]
 </script>
 
-<div class="flex w-full flex-row items-end space-x-1 pl-0.5">
-	{#each data as item}
-		<FilteringBar data={item} height={(item.segmentation_info.after_sam / max) * 300} width={10} />
-	{/each}
-	{#if $hovered_bar}
-		{@const masksRemoved = {
-			after_min_area_filter:
-				$hovered_bar.segmentation_info.after_sam -
-				$hovered_bar.segmentation_info.after_min_area_filter,
-			after_iou_filter:
-				$hovered_bar.segmentation_info.after_min_area_filter -
-				$hovered_bar.segmentation_info.after_iou_filter
-		}}
-		{@const src = getImageUrl($hovered_bar.name, $hovered_bar.dataset, $run, true)}
-		<div class="flex h-full flex-col space-y-1">
-			<div class="h-48 w-full">
-				<img {src} alt={$hovered_bar.name} class="h-48 w-full object-scale-down" />
+<div class="flex w-min flex-col space-y-2">
+	<div class="flex flex-row items-end space-x-1 pl-0.5">
+		{#each sortBars(selectedMetaData, $barSorting, $ascending) as item}
+			<FilteringBar
+				data={item}
+				height={(item.segmentation_info.after_sam / max) * 300}
+				{width}
+				bind:h_bar
+			/>
+		{/each}
+		{#if h_bar}
+			<MasksInfo bar={h_bar} />
+		{/if}
+	</div>
+	<Separator />
+	<div class="flex w-full items-center space-x-2">
+		<div class="flex w-full flex-col space-y-2">
+			<div class="flex w-full flex-row items-center space-x-2 px-2">
+				<Label class="w-28">min_area</Label>
+				<Slider bind:value={min_area_val} min={0} max={0.5} step={0.005} {disabled}></Slider>
+				<Label class="w-8 text-right">{min_area_val[0]}</Label>
 			</div>
-
-			<Label class="text-base">{$hovered_bar.name}</Label>
-			<Label>Initial masks: {$hovered_bar.segmentation_info.after_sam}</Label>
-			<Label>
-				Removed by min-area filter: {masksRemoved.after_min_area_filter} ({getPercentage(
-					masksRemoved.after_min_area_filter,
-					$hovered_bar.segmentation_info.after_sam,
-					2
-				)}%)
-			</Label>
-			<Label>
-				Removed by IoU filter: {masksRemoved.after_iou_filter} ({getPercentage(
-					masksRemoved.after_iou_filter,
-					$hovered_bar.segmentation_info.after_sam,
-					2
-				)}%)
-			</Label>
-			<Label>
-				Final masks: {$hovered_bar.segmentation_info.after_iou_filter} ({getPercentage(
-					$hovered_bar.segmentation_info.after_iou_filter,
-					$hovered_bar.segmentation_info.after_sam,
-					2
-				)}%)
-			</Label>
+			<Separator />
+			<div class="flex w-full flex-row items-center space-x-2 px-2">
+				<Label class="w-28">iou_threshold</Label>
+				<Slider bind:value={iou_threshold_val} min={0} max={1} step={0.01} {disabled}></Slider>
+				<Label class="w-8 text-right">{iou_threshold_val[0]}</Label>
+			</div>
 		</div>
-	{/if}
+		<Separator orientation="vertical" />
+		<Button
+			class="w-28"
+			{disabled}
+			on:click={async () => {
+				disabled = true
+				selectedMetaData = await updateAllMetaData(
+					min_area_val[0],
+					iou_threshold_val[0],
+					data,
+					data[0].dataset
+				)
+				disabled = false
+			}}
+		>
+			{disabled ? 'LOADING' : 'FILTER'}
+		</Button>
+	</div>
+	<Separator />
 </div>

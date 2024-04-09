@@ -56,7 +56,7 @@ parser.add_argument(
     type=int,
     help="The number of points to be sampled along one side of the image. "
     "The total number of points is points_per_side**2.",
-    default=8,
+    default=32,
 )
 parser.add_argument(
     "--points_per_batch",
@@ -190,6 +190,8 @@ def main(args):
             masks_filtered_by_area, args.iou_thresh
         )
         print(type(masks_filtered_by_iou[1]["segmentation"]))
+        for mask in masks_filtered_by_iou:
+            mask["class_id"] = 2
         annotated_path = Path(output_path, f"{img_name}_annotated.png")
         save_masks(
             masks_filtered_by_iou,

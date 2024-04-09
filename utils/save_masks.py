@@ -28,7 +28,7 @@ def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path)
             "crop_box": mask["crop_box"],
             "bbox": mask["bbox"],
             "point_coords": mask["point_coords"],
-            "class_id": 1,
+            "class_id": 2,
         }
         masks_data.append(mask_data)
 

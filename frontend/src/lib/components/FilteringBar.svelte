@@ -1,14 +1,12 @@
 <script lang="ts">
-	import type { MetadataObject } from '../../types'
-	import { Label } from './ui/label'
-	import * as Tooltip from '$lib/components/ui/tooltip'
-	import { IMAGE_NAMES, getPercentage } from '../../api'
-	import { dataset, hovered_bar, selected_name } from '../../stores'
+	import { BG_COLORS, type MetadataObject } from '../../types'
+	import { getPercentage } from '../../api'
+	import { hovered_bar } from '../../stores'
 	let colors = ['bg-red-400', 'bg-amber-400', 'bg-emerald-500']
 	let titles = ['min-area filter', 'IoU filter']
 
 	export let data: MetadataObject
-	let seg_info = data.segmentation_info
+	$: seg_info = data.segmentation_info
 
 	$: masksRemoved = {
 		after_min_area_filter: seg_info.after_sam - seg_info.after_min_area_filter,
@@ -17,6 +15,7 @@
 
 	export let width: number = 100
 	export let height: number = 200
+	export let h_bar: MetadataObject
 </script>
 
 <div class="group w-[{width}px] pt-1">
@@ -24,15 +23,16 @@
 		aria-hidden="true"
 		class="flex w-[{width}px] flex-col justify-end rounded-t-md outline outline-0 hover:outline-2"
 		style="height: {height}px; width: {width}px;"
-		on:mouseenter={() => hovered_bar.set(data)}
+		on:mouseenter={() => (h_bar = data)}
 	>
 		{#each Object.entries(masksRemoved) as [key, val], index}
-			<div
-				class="w-full {colors[index]}"
-				style="height: {getPercentage(val, seg_info.after_sam)}%;"
-			/>
+			{#if val != 0}
+				<div
+					class="w-full {BG_COLORS[index]} first:rounded-t-md"
+					style="height: {getPercentage(val, seg_info.after_sam)}%;"
+				/>
+			{/if}
 		{/each}
-
-		<div class="w-full flex-auto {colors[2]}" />
+		<div class="w-full flex-auto {BG_COLORS[2]} first:rounded-t-md" />
 	</div>
 </div>

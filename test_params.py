@@ -19,7 +19,7 @@ parser.add_argument(
     "--n",
     type=int,
     help="Number of images to test each parameter on",
-    default=10,
+    default=40,
 )
 parser.add_argument(
     "--data_path",

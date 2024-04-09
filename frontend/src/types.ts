@@ -50,3 +50,12 @@ export type Metadata = {
 // type Colors = { [key: string]: string }
 export const COLORS = ['ring-[#e41a1c]', 'ring-[#377eb8]', 'ring-[#4daf4a]']
 export const BG_COLORS = ['bg-[#e41a1c]', 'bg-[#377eb8]', 'bg-[#4daf4a]']
+
+export type Sorting = 'None' | 'area' | 'stability_score' | 'predicted_iou' | 'class_id'
+export type BarSorting =
+	| 'None'
+	| 'after_sam'
+	| 'after_min_area_filter'
+	| 'after_iou_filter'
+	| 'removed_by_min_area'
+	| 'removed_by_iou_thresh'

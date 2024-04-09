@@ -17,7 +17,6 @@ def annotate_image(masks, image, path, color=sv.ColorPalette.DEFAULT, opacity=0.
     xywh = np.array([mask["bbox"] for mask in sorted_generated_masks])
     mask_imgs = np.array([mask["segmentation"] for mask in sorted_generated_masks])
     class_id = np.array([mask["class_id"] for mask in sorted_generated_masks])
-    custom_color = np.array([mask["class_id"] for mask in sorted_generated_masks])
     xyxy = xywh.copy()
     xyxy[:, 2] = xywh[:, 0] + xywh[:, 2]
     xyxy[:, 3] = xywh[:, 1] + xywh[:, 3]

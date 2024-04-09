@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -39,20 +40,22 @@ def index():
     return "Hello, World!"
 
 
-@app.route("/api/filter", methods=["POST"])
-@cross_origin()
-def filter_masks():
-    query = request.json.get("query")
+def background(f):
+    def wrapped(*args, **kwargs):
+        return asyncio.get_event_loop().run_in_executor(None, f, *args, **kwargs)
+
+    return wrapped
+
+
+def perform_task(metadata, min_area, threshold, img):
     os.chdir(os.path.dirname(__file__))
-    new_metadata, removed_by_min_area, removed_by_iou, after_iou = filter_and_edit_json(
-        query["metadata"], query["min_area"], query["threshold"]
-    )
+    new_metadata, _, _, _ = filter_and_edit_json(metadata, min_area, threshold)
     os.chdir(os.path.dirname(__file__))
     parent_path = Path(Path("./").absolute().parent)
     annotated_path = Path(f"{parent_path}/{new_metadata['annotated_image']}")
     img_path = Path(
         f"{parent_path}/frontend/static/data/test2/images/{new_metadata['dataset']}/test",
-        f"{query['img']}",
+        f"{img}",
     )
     img = cv2.imread(str(img_path))
     annotator(img, new_metadata["masks"], annotated_path)
@@ -60,8 +63,76 @@ def filter_masks():
     for mask in new_metadata["masks"]:
         mask.pop("segmentation", None)
 
+    return new_metadata
+
+
+@background
+def parallel_task(metadata, min_area, threshold, img):
+    return perform_task(metadata, min_area, threshold, img)
+
+
+@app.route("/api/filter", methods=["POST"])
+@cross_origin()
+def filter_masks():
+    query = request.json.get("query")
+
+    new_metadata = perform_task(
+        query["metadata"], query["min_area"], query["threshold"], query["img"]
+    )
+    # os.chdir(os.path.dirname(__file__))
+    # new_metadata, removed_by_min_area, removed_by_iou, after_iou = filter_and_edit_json(
+    #     query["metadata"], query["min_area"], query["threshold"]
+    # )
+    # os.chdir(os.path.dirname(__file__))
+    # parent_path = Path(Path("./").absolute().parent)
+    # annotated_path = Path(f"{parent_path}/{new_metadata['annotated_image']}")
+    # img_path = Path(
+    #     f"{parent_path}/frontend/static/data/test2/images/{new_metadata['dataset']}/test",
+    #     f"{query['img']}",
+    # )
+    # img = cv2.imread(str(img_path))
+    # annotator(img, new_metadata["masks"], annotated_path)
+
+    # for mask in new_metadata["masks"]:
+    #     mask.pop("segmentation", None)
+
     response = jsonify(json.dumps(new_metadata, cls=NpEncoder))
 
+    return response
+
+
+@app.route("/api/filter_all", methods=["POST"])
+@cross_origin()
+def filter_all_masks():
+    query = request.json.get("query")
+
+    metadatas = query["metadata"]
+    # for i, img_metadata in enumerate(new_metadata):
+    #     new_metadata[i] = perform_task(
+    #         img_metadata,
+    #         query["min_area"],
+    #         query["threshold"],
+    #         f"{img_metadata['name']}.{query['suffix']}",
+    #     )
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    looper = asyncio.gather(
+        *[
+            parallel_task(
+                img_metadata,
+                query["min_area"],
+                query["threshold"],
+                f"{img_metadata['name']}.{query['suffix']}",
+            )
+            for img_metadata in metadatas
+        ]
+    )
+
+    results = loop.run_until_complete(looper)
+
+    response = jsonify(json.dumps(results, cls=NpEncoder))
     return response
 
 

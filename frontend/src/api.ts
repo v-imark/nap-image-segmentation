@@ -1,5 +1,5 @@
 //import { metaData } from './stores'
-import type { Dataset, Metadata, MetadataObject, Param } from './types'
+import type { BarSorting, Dataset, Metadata, MetadataObject, Param, Sorting } from './types'
 
 export const loadParams = async (): Promise<{ [key: string]: Param[] }> => {
 	const response = await fetch('http://localhost:5173/test_params.json')
@@ -172,4 +172,57 @@ export const filterAndAnnotate = async (
 		})
 	}).then((res) => res.json())
 	return JSON.parse(data)
+}
+
+export const filterAndAnnotateAll = async (
+	min_area: number,
+	threshold: number,
+	metadata: MetadataObject[],
+	suffix: string
+) => {
+	const data = await fetch('http://127.0.0.1:5000/api/filter_all', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			query: { metadata: metadata, min_area: min_area, threshold: threshold, suffix: suffix }
+		})
+	}).then((res) => res.json())
+	return JSON.parse(data)
+}
+
+export const sortMasks = (data: MetadataObject, key: Sorting, ascending: boolean) => {
+	if (key == 'None') return data
+	const sorted = data
+	sorted.masks = sorted.masks.sort((a, b) => (ascending ? a[key] - b[key] : b[key] - a[key]))
+	return sorted
+}
+
+export const sortBars = (data: MetadataObject[], key: BarSorting, ascending: boolean) => {
+	if (key == 'None') return data
+	if (key == 'removed_by_min_area') {
+		const sorted = data.sort((a, b) => {
+			const a_removed = a.segmentation_info.after_sam - a.segmentation_info.after_min_area_filter
+			const b_removed = b.segmentation_info.after_sam - b.segmentation_info.after_min_area_filter
+			return ascending ? a_removed - b_removed : b_removed - a_removed
+		})
+		return sorted
+	}
+	if (key == 'removed_by_iou_thresh') {
+		const sorted = data.sort((a, b) => {
+			const a_removed =
+				a.segmentation_info.after_min_area_filter - a.segmentation_info.after_iou_filter
+			const b_removed =
+				b.segmentation_info.after_min_area_filter - b.segmentation_info.after_iou_filter
+			return ascending ? a_removed - b_removed : b_removed - a_removed
+		})
+		return sorted
+	}
+
+	return data.sort((a, b) =>
+		ascending
+			? a.segmentation_info[key] - b.segmentation_info[key]
+			: b.segmentation_info[key] - a.segmentation_info[key]
+	)
 }
