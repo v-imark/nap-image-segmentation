@@ -16,7 +16,7 @@
 				alt={mask?.name}
 				class="h-24 object-scale-down object-center {COLORS[
 					mask.class_id
-				]} ring-4 first:ml-3 first:mt-3"
+				]} bg-black ring-4 first:ml-3 first:mt-3"
 			/>
 		{/key}
 	{/each}

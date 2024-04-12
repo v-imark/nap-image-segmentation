@@ -68,7 +68,7 @@ export const getAllMetaDataForImage = async (name: string, dataset: string, run:
 }
 
 export const getRelativePath = (path: string) => {
-	const result = path.replace('\\', '/')
+	const result = path.toString().replace(/\\/g, '/')
 	return result.replace('frontend/static', '')
 }
 
@@ -225,4 +225,17 @@ export const sortBars = (data: MetadataObject[], key: BarSorting, ascending: boo
 			? a.segmentation_info[key] - b.segmentation_info[key]
 			: b.segmentation_info[key] - a.segmentation_info[key]
 	)
+}
+
+export const makeBgsTransparent = async (metadata: MetadataObject) => {
+	const result = await fetch('http://127.0.0.1:5000/api/transparent', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			query: { masks: metadata.masks }
+		})
+	}).then((res) => res.json())
+	return result
 }

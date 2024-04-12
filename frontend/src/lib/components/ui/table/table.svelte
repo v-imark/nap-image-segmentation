@@ -9,7 +9,7 @@
 </script>
 
 <div class="h-full w-full overflow-auto">
-	<table class={cn('w-full caption-bottom text-sm', className)} {...$$restProps}>
+	<table class={cn('w-full caption-bottom text-sm', className)} {...$$restProps} on:mouseleave>
 		<slot />
 	</table>
 </div>

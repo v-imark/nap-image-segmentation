@@ -9,8 +9,10 @@ import sys
 
 import numpy as np
 
+
 sys.path.append("../")
 
+from backend.transparent_background import make_bg_transparent
 from backend.annotator import annotator
 from backend.filter import filter_and_edit_json
 from flask_cors import CORS, cross_origin
@@ -79,22 +81,6 @@ def filter_masks():
     new_metadata = perform_task(
         query["metadata"], query["min_area"], query["threshold"], query["img"]
     )
-    # os.chdir(os.path.dirname(__file__))
-    # new_metadata, removed_by_min_area, removed_by_iou, after_iou = filter_and_edit_json(
-    #     query["metadata"], query["min_area"], query["threshold"]
-    # )
-    # os.chdir(os.path.dirname(__file__))
-    # parent_path = Path(Path("./").absolute().parent)
-    # annotated_path = Path(f"{parent_path}/{new_metadata['annotated_image']}")
-    # img_path = Path(
-    #     f"{parent_path}/frontend/static/data/test2/images/{new_metadata['dataset']}/test",
-    #     f"{query['img']}",
-    # )
-    # img = cv2.imread(str(img_path))
-    # annotator(img, new_metadata["masks"], annotated_path)
-
-    # for mask in new_metadata["masks"]:
-    #     mask.pop("segmentation", None)
 
     response = jsonify(json.dumps(new_metadata, cls=NpEncoder))
 
@@ -107,13 +93,6 @@ def filter_all_masks():
     query = request.json.get("query")
 
     metadatas = query["metadata"]
-    # for i, img_metadata in enumerate(new_metadata):
-    #     new_metadata[i] = perform_task(
-    #         img_metadata,
-    #         query["min_area"],
-    #         query["threshold"],
-    #         f"{img_metadata['name']}.{query['suffix']}",
-    #     )
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -134,6 +113,19 @@ def filter_all_masks():
 
     response = jsonify(json.dumps(results, cls=NpEncoder))
     return response
+
+
+@app.route("/api/transparent", methods=["POST"])
+@cross_origin()
+def transparent_masks():
+    query = request.json.get("query")
+    os.chdir(os.path.dirname(__file__))
+
+    for mask in query["masks"]:
+        path = Path(Path("./").absolute().parent, mask["path"])
+        make_bg_transparent(f"{Path(path, mask['name'])}")
+
+    return jsonify({"result": "success"})
 
 
 if __name__ == "__main__":

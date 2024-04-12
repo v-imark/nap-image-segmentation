@@ -14,6 +14,7 @@ export const toggleBars = writable(false)
 export const sorting = writable<Sorting>('None')
 export const barSorting = writable<BarSorting>('None')
 export const ascending = writable(false)
+export const toggleProbabilityView = writable(false)
 
 export const updateMetaData = async (
 	min_area: number,
