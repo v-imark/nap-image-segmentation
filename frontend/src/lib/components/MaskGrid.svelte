@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getRelativePath, sortMasks } from '../../api'
-	import { ascending, sorting } from '../../stores'
+	import { ascending, displayOptions, hoveredMask, sorting } from '../../stores'
 	import { COLORS, type MetadataObject } from '../../types'
 
 	export let metaData: MetadataObject
@@ -16,7 +16,8 @@
 				alt={mask?.name}
 				class="h-24 object-scale-down object-center {COLORS[
 					mask.class_id
-				]} bg-black ring-4 first:ml-3 first:mt-3"
+				]} bg-black ring-4 first:ml-3 first:mt-3 {!$displayOptions[mask.class_id] && 'hidden'}"
+				on:mouseenter={() => ($hoveredMask = mask.name)}
 			/>
 		{/key}
 	{/each}

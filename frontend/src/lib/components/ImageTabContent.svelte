@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { toggleTable } from '../../stores'
-	import { Separator } from './ui/separator'
-	import MaskTable from './MaskTable.svelte'
-	import MaskGrid from './MaskGrid.svelte'
-	import AnnotatedWithSliders from './AnnotatedWithSliders.svelte'
 	import type { Dataset, MetadataObject } from '../../types'
+	import AnnotatedWithSliders from './AnnotatedWithSliders.svelte'
+	import MaskGrid from './MaskGrid.svelte'
+	import MaskTable from './MaskTable.svelte'
+	import { Separator } from './ui/separator'
 
 	export let data: MetadataObject[]
 	export let dataset: Dataset

@@ -10,7 +10,7 @@ export interface Param {
 	iou_thresh: number
 }
 
-export type Dataset = 'oxford_flowers102' | 'imagenet2012'
+export type Dataset = 'oxford_flowers102' | 'imagenet2012' | 'oxford_iiit_pet'
 
 export interface MetadataObject {
 	name: string

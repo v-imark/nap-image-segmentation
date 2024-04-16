@@ -17,10 +17,14 @@ export const getImageNames = async () => {
 	const oxford: string[] = await fetch(
 		'http://localhost:5173/data/test2/images/oxford_flowers102/image_names.json'
 	).then((val) => val.json())
+	const oxford_pets: string[] = await fetch(
+		'http://localhost:5173/data/test2/images/oxford_iiit_pet/image_names.json'
+	).then((val) => val.json())
 
 	return {
 		imagenet2012: imagenet,
-		oxford_flowers102: oxford
+		oxford_flowers102: oxford,
+		oxford_iiit_pet: oxford_pets
 	}
 }
 
@@ -72,17 +76,38 @@ export const getRelativePath = (path: string) => {
 	return result.replace('frontend/static', '')
 }
 
+export const makeBgsTransparent = async (metadata: MetadataObject) => {
+	const result = await fetch('http://127.0.0.1:5000/api/transparent', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			query: { masks: metadata.masks }
+		})
+	}).then((res) => res.json())
+	return result
+}
+
 export const getBarChartData = async (paramId: string, run: string) => {
 	const url = getMetaDataUrl(paramId, 'imagenet2012', run)
 	const imagenet_json: MetadataObject[] = await fetch(`${url}/metadata.json`).then((res) => {
-		return res.json()
+		return res.status != 404 ? res.json() : []
 	})
 	const url2 = getMetaDataUrl(paramId, 'oxford_flowers102', run)
 	const oxford_json: MetadataObject[] = await fetch(`${url2}/metadata.json`).then((res) => {
 		return res.json()
 	})
+	const url3 = getMetaDataUrl(paramId, 'oxford_iiit_pet', run)
+	const oxford_pets_json: MetadataObject[] = await fetch(`${url3}/metadata.json`).then((res) => {
+		return res.json()
+	})
 
-	return { imagenet2012: imagenet_json, oxford_flowers102: oxford_json }
+	return {
+		imagenet2012: imagenet_json,
+		oxford_flowers102: oxford_json,
+		oxford_iiit_pet: oxford_pets_json
+	}
 }
 
 export const formatBarDataForDataset = (data: MetadataObject[]) => {
@@ -225,17 +250,4 @@ export const sortBars = (data: MetadataObject[], key: BarSorting, ascending: boo
 			? a.segmentation_info[key] - b.segmentation_info[key]
 			: b.segmentation_info[key] - a.segmentation_info[key]
 	)
-}
-
-export const makeBgsTransparent = async (metadata: MetadataObject) => {
-	const result = await fetch('http://127.0.0.1:5000/api/transparent', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			query: { masks: metadata.masks }
-		})
-	}).then((res) => res.json())
-	return result
 }

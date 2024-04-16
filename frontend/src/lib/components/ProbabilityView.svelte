@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import type { MetadataObject } from '../../types'
-	import { IMAGE_NAMES, getImageUrl, getRelativePath, makeBgsTransparent } from '../../api'
-	import { dataset, run } from '../../stores'
-	import * as Select from './ui/select'
+	import { getImageUrl, getRelativePath, makeBgsTransparent } from '../../api'
+	import { run } from '../../stores'
+	import { BG_COLORS, type MetadataObject } from '../../types'
 	import MaskTable from './MaskTable.svelte'
+	import * as Select from './ui/select'
 	import { Separator } from './ui/separator'
 
 	export let data: MetadataObject[]
@@ -42,7 +42,7 @@
 		}}
 	>
 		<Select.Trigger class="w-[280px]">
-			<Select.Value placeholder="Select image" />
+			<Select.Value placeholder="Select image"></Select.Value>
 		</Select.Trigger>
 		<Select.Content class="h-[600px] overflow-y-auto">
 			{#each data as item}
@@ -64,7 +64,9 @@
 					/>
 					{#each selected.masks as mask}
 						<div
-							class="absolute opacity-50 {mask.name == hovered ? 'bg-yellow-400' : 'bg-red-700'}"
+							class="absolute opacity-50 {mask.name == hovered
+								? 'bg-yellow-400'
+								: BG_COLORS[mask.class_id]}"
 							style="
 								width: {sizes.w}px;
 								height: {sizes.h}px;

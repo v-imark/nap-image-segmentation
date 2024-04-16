@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { getRelativePath, sortMasks } from '../../api'
-	import { ascending, sorting } from '../../stores'
-	import { BG_COLORS, COLORS, type MetadataObject } from '../../types'
+	import { ascending, displayOptions, hoveredMask, sorting } from '../../stores'
+	import { BG_COLORS, type MetadataObject } from '../../types'
 	import * as Table from './ui/table'
 
 	export let data: MetadataObject
 	export let probabilityView = false
 	export let hovered = ''
 	$: sortedData = sortMasks(data, $sorting, $ascending)
-	$: console.log(hovered)
 	let style = (mask: any) =>
 		`${BG_COLORS[mask.class_id]} bg-opacity-30 hover:${
 			BG_COLORS[mask.class_id]
@@ -32,10 +31,12 @@
 	<Table.Body>
 		{#each sortedData.masks as mask}
 			<Table.Row
-				class={probabilityView ? '' : style(mask)}
+				class="{!$displayOptions[mask.class_id] && 'hidden h-0'} {probabilityView
+					? ''
+					: style(mask)}"
 				on:mouseenter={() => {
-					console.log(mask.name)
 					hovered = mask.name
+					$hoveredMask = mask.name
 				}}
 			>
 				<Table.Cell>

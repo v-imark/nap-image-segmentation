@@ -33,7 +33,7 @@ parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
     default="oxford_flowers102",
-    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012", "images"],
+    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012", "images", "oxford_iiit_pet"],
 )
 parser.add_argument(
     "--split",
@@ -189,7 +189,6 @@ def main(args):
         masks_filtered_by_iou = exclude_masks_by_iou(
             masks_filtered_by_area, args.iou_thresh
         )
-        print(type(masks_filtered_by_iou[1]["segmentation"]))
         for mask in masks_filtered_by_iou:
             mask["class_id"] = 2
         annotated_path = Path(output_path, f"{img_name}_annotated.png")

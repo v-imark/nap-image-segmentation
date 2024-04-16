@@ -2,7 +2,7 @@
 	import * as Tabs from '$lib/components/ui/tabs'
 	import { barData, dataset, toggleBars, toggleProbabilityView, toggleTable } from '../../stores'
 	import DatasetSelector from './DatasetSelector.svelte'
-	import FilteringBar from './FilteringBar.svelte'
+	import DisplayOptions from './DisplayOptions.svelte'
 	import FilteringChart from './FilteringChart.svelte'
 	import ImageTabContent from './ImageTabContent.svelte'
 	import ParamSelector from './ParamSelector.svelte'
@@ -43,6 +43,7 @@
 			>
 		</Toggle>
 		<SortingSelect />
+		<DisplayOptions />
 	</div>
 	<Separator />
 	{#await $barData}
@@ -52,6 +53,8 @@
 			<div class="flex h-full w-min flex-col justify-evenly space-y-3">
 				<Label class="text-2xl">oxford_flowers102</Label>
 				<FilteringChart data={data.oxford_flowers102} />
+				<Label class="text-2xl">oxford_iiit_pet</Label>
+				<FilteringChart data={data.oxford_iiit_pet} />
 				<Label class="text-2xl">imagenet2012</Label>
 				<FilteringChart data={data.imagenet2012} />
 			</div>
@@ -59,10 +62,19 @@
 			<div class="flex-1 items-stretch"><ProbabilityView data={data[$dataset]} /></div>
 		{:else}
 			<Tabs.Content value={'oxford_flowers102'} class="min-h-0 flex-1 focus-visible:flex">
-				<ImageTabContent data={data.oxford_flowers102} dataset="oxford_flowers102" />
+				{#if data.oxford_flowers102.length > 0}
+					<ImageTabContent data={data.oxford_flowers102} dataset="oxford_flowers102" />
+				{/if}
 			</Tabs.Content>
 			<Tabs.Content value={'imagenet2012'} class="min-h-0 flex-1 focus-visible:flex">
-				<ImageTabContent data={data.imagenet2012} dataset="imagenet2012" />
+				{#if data.imagenet2012.length > 0}
+					<ImageTabContent data={data.imagenet2012} dataset="imagenet2012" />
+				{/if}
+			</Tabs.Content>
+			<Tabs.Content value={'oxford_iiit_pet'} class="min-h-0 flex-1 focus-visible:flex">
+				{#if data.oxford_iiit_pet.length > 0}
+					<ImageTabContent data={data.oxford_iiit_pet} dataset="oxford_iiit_pet" />
+				{/if}
 			</Tabs.Content>
 		{/if}
 	{/await}

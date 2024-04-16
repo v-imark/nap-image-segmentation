@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { IMAGE_NAMES, getImageUrl, getRelativePath } from '../../api'
 	import { iou_threshold, min_area, run, updateMetaData } from '../../stores'
-	import Slider from './ui/slider/slider.svelte'
-	import { Label } from './ui/label'
-	import { Separator } from './ui/separator'
-	import { Switch } from './ui/switch'
-	import * as Select from './ui/select'
 	import type { Dataset, MetadataObject } from '../../types'
+	import AnnotatedImage from './AnnotatedImage.svelte'
+	import { Label } from './ui/label'
+	import * as Select from './ui/select'
+	import { Separator } from './ui/separator'
+	import Slider from './ui/slider/slider.svelte'
+	import { Switch } from './ui/switch'
 
 	export let dataset: Dataset
 	export let data: MetadataObject[]
@@ -26,15 +27,14 @@
 	let loading = false
 </script>
 
-<div class="flex h-full w-full items-center justify-center space-x-3">
+<div class="flex h-56 w-full items-center justify-center space-x-3">
 	{#if annotate}
-		<img
+		<AnnotatedImage data={selectedMetaData} size={224} />
+		<!-- <img
 			src={`${anno_src}?${key}`}
 			alt={`${selectedMetaData.segmentation_info.after_sam}-${selectedMetaData.segmentation_info.after_min_area_filter}-${selectedMetaData.segmentation_info.after_iou_filter}`}
-			class="z-50 h-56 object-scale-down hover:scale-150 {loading
-				? 'animate-pulse'
-				: 'animate-none'}"
-		/>
+			class="z-50 h-56 w-56 object-scale-down {loading ? 'animate-pulse' : 'animate-none'}"
+		/> -->
 	{:else}
 		<img {src} alt={selectedName.value} class="h-56 hover:scale-150" />
 	{/if}

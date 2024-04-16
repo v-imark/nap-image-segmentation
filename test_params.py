@@ -11,7 +11,8 @@ from tqdm import tqdm
 
 PARAMS_PATH = "frontend/static/test_params.json"
 OUTPUT_PATH = "frontend/static/data"
-
+DATA_PATH = "D:/GithubProjects/tensorflow_datasets"
+DATA_PATH_LAPTOP = "C:/Users/victo/tensorflow_datasets"
 
 parser = argparse.ArgumentParser(description="Tests multiple parameters")
 
@@ -19,12 +20,12 @@ parser.add_argument(
     "--n",
     type=int,
     help="Number of images to test each parameter on",
-    default=40,
+    default=15,
 )
 parser.add_argument(
     "--data_path",
     help="Path to the tensorflow_datasets folder",
-    default="D:/GithubProjects/tensorflow_datasets",
+    default=DATA_PATH_LAPTOP,
 )
 parser.add_argument(
     "--param", help="Path to params to use", default="test2", choices=["test1", "test2"]
@@ -54,6 +55,10 @@ def get_args(params, args, dataset, path):
         "python.exe",
         "-m",
         "segment_images",
+        "--sam_model_type",
+        "vit_l",
+        "--checkpoint",
+        "C:/Users/victo/sam_vit_l_0b3195.pth",
         "--data_path",
         path,
         "--dataset",
@@ -91,19 +96,25 @@ def main(args):
     oxford_flowers_files = list(
         Path(args.data_path, "oxford_flowers102", "test").iterdir()
     )
-    imagenet_files = list(Path(args.data_path, "imagenet2012", "test").iterdir())
+    # imagenet_files = list(Path(args.data_path, "imagenet2012", "test").iterdir())
+    oxford_pets = list(Path(args.data_path, "oxford_iiit_pet", "test").iterdir())
+
 
     IMAGES_OUTPUT_PATH = f"{OUTPUT_PATH}/{args.param}/images"
     os.makedirs(IMAGES_OUTPUT_PATH, exist_ok=True)
 
     copy_images(oxford_flowers_files, args.n, "oxford_flowers102", IMAGES_OUTPUT_PATH)
-    copy_images(imagenet_files, args.n, "imagenet2012", IMAGES_OUTPUT_PATH)
+    # copy_images(imagenet_files, args.n, "imagenet2012", IMAGES_OUTPUT_PATH)
+    copy_images(oxford_pets, args.n, "oxford_iiit_pet", IMAGES_OUTPUT_PATH)
 
     for p in tqdm(params):
         print("Segmenting for:", p["id"])
-        im_args = get_args(p, args, "imagenet2012", IMAGES_OUTPUT_PATH)
+        # im_args = get_args(p, args, "imagenet2012", IMAGES_OUTPUT_PATH)
         of_args = get_args(p, args, "oxford_flowers102", IMAGES_OUTPUT_PATH)
-        subprocess.run(im_args)
+        ofp_args = get_args(p, args, "oxford_iiit_pet", IMAGES_OUTPUT_PATH)
+
+        # subprocess.run(im_args)
+        subprocess.run(ofp_args)
         subprocess.run(of_args)
 
 
