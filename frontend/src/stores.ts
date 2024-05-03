@@ -1,5 +1,11 @@
 import { derived, writable } from 'svelte/store'
-import { IMAGE_NAMES, filterAndAnnotate, filterAndAnnotateAll, getBarChartData } from './api'
+import {
+	IMAGE_NAMES,
+	filterAndAnnotate,
+	filterAndAnnotateAll,
+	getBarChartData,
+	makeBgsTransparent
+} from './api'
 import { type BarSorting, type Dataset, type MetadataObject, type Sorting } from './types'
 
 export const selected_params = writable<string>('default')
@@ -52,22 +58,22 @@ export const updateAllMetaData = async (
 
 export const barData = derived([selected_params, run], async ([$selected_params, $run]) => {
 	const data = await getBarChartData($selected_params, $run)
-	// for (
-	// 	let i = 0;
-	// 	i <
-	// 	Math.max(data.imagenet2012.length, data.oxford_flowers102.length, data.oxford_iiit_pet.length);
-	// 	i++
-	// ) {
-	// 	if (i < data.imagenet2012.length) {
-	// 		await makeBgsTransparent(data.imagenet2012[i])
-	// 	}
-	// 	if (i < data.oxford_flowers102.length) {
-	// 		await makeBgsTransparent(data.oxford_flowers102[i])
-	// 	}
-	// 	if (i < data.oxford_iiit_pet.length) {
-	// 		await makeBgsTransparent(data.oxford_iiit_pet[i])
-	// 	}
-	// }
+	for (
+		let i = 0;
+		i <
+		Math.max(data.imagenet2012.length, data.oxford_flowers102.length, data.oxford_iiit_pet.length);
+		i++
+	) {
+		if (i < data.imagenet2012.length) {
+			await makeBgsTransparent(data.imagenet2012[i])
+		}
+		if (i < data.oxford_flowers102.length) {
+			await makeBgsTransparent(data.oxford_flowers102[i])
+		}
+		if (i < data.oxford_iiit_pet.length) {
+			await makeBgsTransparent(data.oxford_iiit_pet[i])
+		}
+	}
 	return data
 })
 

@@ -33,7 +33,14 @@ parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
     default="oxford_flowers102",
-    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012", "images", "oxford_iiit_pet"],
+    choices=[
+        "cifar10",
+        "mnist",
+        "oxford_flowers102",
+        "imagenet2012",
+        "images",
+        "oxford_iiit_pet",
+    ],
 )
 parser.add_argument(
     "--split",

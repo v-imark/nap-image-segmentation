@@ -96,11 +96,11 @@ export const getBarChartData = async (paramId: string, run: string) => {
 	})
 	const url2 = getMetaDataUrl(paramId, 'oxford_flowers102', run)
 	const oxford_json: MetadataObject[] = await fetch(`${url2}/metadata.json`).then((res) => {
-		return res.json()
+		return res.status != 404 ? res.json() : []
 	})
 	const url3 = getMetaDataUrl(paramId, 'oxford_iiit_pet', run)
 	const oxford_pets_json: MetadataObject[] = await fetch(`${url3}/metadata.json`).then((res) => {
-		return res.json()
+		return res.status != 404 ? res.json() : []
 	})
 
 	return {
