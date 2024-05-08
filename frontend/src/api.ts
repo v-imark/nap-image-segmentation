@@ -39,7 +39,7 @@ export function getImageUrl(name: string, dataset: Dataset, run: string, search?
 	return `/data/${run}/images/${dataset}/test/${name}`
 }
 
-const getMetaDataUrl = (paramId: string, dataset: string, run: string) => {
+export const getMetaDataUrl = (paramId: string, dataset: string, run: string) => {
 	const param = EXAMPLE_PARAMS[run].find((val) => val.id == paramId) as Param
 	const shorts = ['pps', 'ppb', 'pit', 'sst', 'cnl', 'cnldf']
 	let datasetFolder = `${dataset}`

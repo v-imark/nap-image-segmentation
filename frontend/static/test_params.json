@@ -165,6 +165,17 @@
 			"crop_n_layers_downscale_factor": 1,
 			"min_area": 0.0,
 			"iou_thresh": 1.0
+		},
+		{
+			"id": "test",
+			"points_per_side": 8,
+			"points_per_batch": 64,
+			"pred_iou_thresh": 0.88,
+			"stability_score_thresh": 0.95,
+			"crop_n_layers": 0,
+			"crop_n_layers_downscale_factor": 1,
+			"min_area": 0.0,
+			"iou_thresh": 1.0
 		}
 	]
 }

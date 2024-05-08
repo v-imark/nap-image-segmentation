@@ -8,6 +8,8 @@ import {
 } from './api'
 import { type BarSorting, type Dataset, type MetadataObject, type Sorting } from './types'
 
+export const openDrawer = writable(false)
+
 export const selected_params = writable<string>('default')
 export const dataset = writable<Dataset>('oxford_flowers102')
 export const run = writable<string>('test2')

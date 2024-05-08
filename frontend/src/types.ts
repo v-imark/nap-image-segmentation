@@ -59,3 +59,39 @@ export type BarSorting =
 	| 'after_iou_filter'
 	| 'removed_by_min_area'
 	| 'removed_by_iou_thresh'
+
+export type RouteInfo = { id: string; path: string; title: string; description: string }
+export const ROUTES: RouteInfo[] = [
+	{
+		id: '/',
+		path: '/',
+		title: 'Home',
+		description:
+			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
+	},
+	{
+		id: '/[dataset]/compare',
+		path: '/[oxford_flowers102]/compare',
+		title: 'Compare Params',
+		description:
+			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
+	},
+	{
+		id: '/[dataset]/compare2',
+		path: '/[oxford_flowers102]/compare2',
+		title: 'Compare Params 2',
+		description:
+			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
+	},
+	{
+		id: '/overview',
+		path: '/overview',
+		title: 'Dataset Overview',
+		description:
+			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
+	}
+]
+
+export const formatRouteParam = (param: string) => {
+	return param.replace(/\]|\[/g, '')
+}
