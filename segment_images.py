@@ -33,7 +33,14 @@ parser.add_argument(
     "--dataset",
     help="Which dataset to use.",
     default="oxford_flowers102",
-    choices=["cifar10", "mnist", "oxford_flowers102", "imagenet2012"],
+    choices=[
+        "cifar10",
+        "mnist",
+        "oxford_flowers102",
+        "imagenet2012",
+        "images",
+        "oxford_iiit_pet",
+    ],
 )
 parser.add_argument(
     "--split",
@@ -95,13 +102,13 @@ parser.add_argument(
     "--min_area",
     type=float,
     help="Threshold for excluding small masks. 0.01 will remove masks that are smaller than 1% of the image",
-    default=0.01,
+    default=0.00,
 )
 parser.add_argument(
     "--iou_thresh",
     type=float,
     help="Threshold for excluding masks that excede certain IoU with another mask.",
-    default=0.85,
+    default=1.0,
 )
 
 
@@ -176,7 +183,7 @@ def main(args):
 
     # Loop through the image files and read them
     for i in range(int(args.size)):
-        if img_folder_files[i].suffix not in [".png", ".jpg", ".jpeg"]:
+        if img_folder_files[i].suffix.lower() not in [".png", ".jpg", ".jpeg"]:
             print("File is not an image, skipping...")
             continue
 
@@ -184,12 +191,14 @@ def main(args):
         img = cv2.imread(str(img_folder_files[i]))
         print(f"Segmenting {img_name}.{file_type}...")
         masks = compute_masks(img, generator)
+
         masks_filtered_by_area = exclude_small_masks(masks, args.min_area)
         masks_filtered_by_iou = exclude_masks_by_iou(
             masks_filtered_by_area, args.iou_thresh
         )
-
-        annotated_path = Path(output_path, f"{img_name}_annotated.{file_type}")
+        for mask in masks_filtered_by_iou:
+            mask["class_id"] = 2
+        annotated_path = Path(output_path, f"{img_name}_annotated.png")
         save_masks(
             masks_filtered_by_iou,
             img,

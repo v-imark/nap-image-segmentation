@@ -1,0 +1,7 @@
+id,points_per_side,points_per_batch,pred_iou_thresh,stability_score_thresh,crop_n_layers,crop_n_layers_downscale_factor,min_area
+default,32,64,0.88,0.95,0,1,0.01
+lower_psp1,24,64,0.88,0.95,0,1,0.01
+lower_psp2,16,64,0.88,0.95,0,1,0.01
+lower_psp3,8,64,0.88,0.95,0,1,0.01
+higher_pit,32,64,0.95,0.95,0,1,0.01
+higher_pit_lower_psp1,16,64,0.95,0.95,0,1,0.01

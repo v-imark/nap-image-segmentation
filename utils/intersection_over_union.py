@@ -1,3 +1,4 @@
+from copy import copy
 import numpy as np
 
 
@@ -13,13 +14,18 @@ def calculate_iou(mask1, mask2):
 def exclude_masks_by_iou(masks, threshold):
     """Excludes masks that exceeds IoU threshold"""
     num_masks = len(masks)
-    masks_to_keep = []
-
+    masks_to_keep = copy(masks)
     for i in range(num_masks):
-        ious = np.array(
-            [calculate_iou(masks[i], masks[j]) for j in range(num_masks) if i != j]
-        )
-        if np.all(ious <= threshold):
-            masks_to_keep.append(masks[i])
+        exclude = None
+        for j in range(num_masks):
+            if i != j:
+                iou = calculate_iou(masks[i], masks[j])
+                if iou >= threshold:
+                    exclude = min(masks[i], masks[j], key=lambda k: k["area"])
+                    break
+
+        if exclude:
+            # masks_to_keep.remove(exclude)
+            masks_to_keep = [m for m in masks_to_keep if m["name"] != exclude["name"]]
 
     return masks_to_keep

@@ -16,7 +16,7 @@ def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path)
         masked_img = cv2.bitwise_and(
             image, image, mask=mask["segmentation"].astype(np.uint8)
         )
-        mask_name = f"{img_name}_mask_{count}.jpeg"
+        mask_name = f"{img_name}_mask_{count}.png"
         cv2.imwrite(str(Path(masks_path, mask_name)), masked_img)
 
         mask_data = {
@@ -26,6 +26,9 @@ def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path)
             "predicted_iou": mask["predicted_iou"],
             "stability_score": mask["stability_score"],
             "crop_box": mask["crop_box"],
+            "bbox": mask["bbox"],
+            "point_coords": mask["point_coords"],
+            "class_id": 2,
         }
         masks_data.append(mask_data)
 
