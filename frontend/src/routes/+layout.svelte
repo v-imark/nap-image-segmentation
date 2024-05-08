@@ -5,12 +5,17 @@
 	import { openDrawer } from '../stores'
 	import Navigator from '$lib/components/Navigator.svelte'
 	import Separator from '$lib/components/ui/separator/separator.svelte'
+	import Progress from '$lib/components/ui/progress/progress.svelte'
+	import { navigating } from '$app/stores'
 </script>
 
 <Sheet.Root bind:open={$openDrawer}>
 	<div class="h-screen">
 		<Sheet.Trigger class="absolute bottom-1 right-1">Open</Sheet.Trigger>
 		<slot />
+		{#if $navigating}
+			<Progress class="absolute bottom-0 w-full" data-state="indeterminate" />
+		{/if}
 	</div>
 	<Sheet.Content side="left" class="space-y-2">
 		<Sheet.Header>

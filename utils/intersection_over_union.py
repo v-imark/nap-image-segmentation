@@ -29,3 +29,14 @@ def exclude_masks_by_iou(masks, threshold):
             masks_to_keep = [m for m in masks_to_keep if m["name"] != exclude["name"]]
 
     return masks_to_keep
+
+
+def calculate_iou_for_all(masks, mask_metadata):
+    for i in range(len(masks)):
+        ious = []
+        for j in range(len(masks)):
+            if i != j:
+                iou = calculate_iou(masks[i], masks[j])
+                if iou > 0:
+                    ious.append({"name": mask_metadata[j]["name"], "iou": iou})
+        mask_metadata[i]["ious"] = ious

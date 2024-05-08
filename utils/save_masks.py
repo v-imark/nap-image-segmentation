@@ -6,19 +6,18 @@ import cv2
 import numpy as np
 
 
-def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path):
+def create_mask_metadata(masks, img_name, image, output_path):
     masks_path = Path(output_path, img_name, "masks")
     os.makedirs(masks_path, exist_ok=True)
-    json_path = Path(output_path, "metadata.json")
     masks_data = []
-
     for count, mask in enumerate(masks):
+        mask_name = f"{img_name}_mask_{count}.png"
         masked_img = cv2.bitwise_and(
             image, image, mask=mask["segmentation"].astype(np.uint8)
         )
-        mask_name = f"{img_name}_mask_{count}.png"
-        cv2.imwrite(str(Path(masks_path, mask_name)), masked_img)
-
+        alpha = np.uint8(mask["segmentation"] * 255)
+        res = np.dstack((masked_img, alpha))
+        cv2.imwrite(str(Path(masks_path, mask_name)), res)
         mask_data = {
             "name": mask_name,
             "path": str(masks_path),
@@ -32,25 +31,29 @@ def save_masks(masks, image, img_name, output_path, args, sizes, annotated_path)
         }
         masks_data.append(mask_data)
 
+    return masks_data
+
+
+def save_masks(masks, img_name, mask_metadata, output_path, args, annotated_path):
+    json_path = Path(output_path, "metadata.json")
+
     json_entry = {
         "name": img_name,
         "dataset": args.dataset,
         "split": args.split,
         "params": {
             "points_per_side": args.points_per_side,
-            "points_per_batch": args.points_per_batch,
             "pred_iou_thresh": args.pred_iou_thresh,
             "stability_score_thresh": args.stability_score_thresh,
             "crop_n_layers": args.crop_n_layers,
             "crop_n_layers_downscale_factor": args.crop_n_layers_downscale_factor,
-            "min_area": args.min_area,
         },
         "segmentation_info": {
-            "after_sam": sizes[0],
-            "after_min_area_filter": sizes[1],
-            "after_iou_filter": len(masks),
+            "after_sam": len(masks),
+            "after_min_area_filter": 0,
+            "after_iou_filter": 0,
         },
-        "masks": masks_data,
+        "masks": mask_metadata,
         "annotated_image": str(annotated_path) if args.annotate else "",
     }
 

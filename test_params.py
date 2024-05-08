@@ -20,7 +20,7 @@ parser.add_argument(
     "--n",
     type=int,
     help="Number of images to test each parameter on",
-    default=50,
+    default=25,
 )
 parser.add_argument(
     "--data_path",
@@ -28,7 +28,10 @@ parser.add_argument(
     default=DATA_PATH,
 )
 parser.add_argument(
-    "--param", help="Path to params to use", default="test2", choices=["test1", "test2"]
+    "--param",
+    help="Path to params to use",
+    default="pps_test",
+    choices=["pps_test", "cnl_test"],
 )
 
 
@@ -65,8 +68,6 @@ def get_args(params, args, dataset, path):
         str(args.n),
         "--points_per_side",
         str(params["points_per_side"]),
-        "--points_per_batch",
-        str(params["points_per_batch"]),
         "--pred_iou_thresh",
         str(params["pred_iou_thresh"]),
         "--stability_score_thresh",
@@ -75,10 +76,6 @@ def get_args(params, args, dataset, path):
         str(params["crop_n_layers"]),
         "--crop_n_layers_downscale_factor",
         str(params["crop_n_layers_downscale_factor"]),
-        "--min_area",
-        str(params["min_area"]),
-        "--iou_thresh",
-        str(params["iou_thresh"]),
         "-a",
     ]
 
