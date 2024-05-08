@@ -1,13 +1,10 @@
 export interface Param {
 	id: string
 	points_per_side: number
-	points_per_batch: number
 	pred_iou_thresh: number
 	stability_score_thresh: number
 	crop_n_layers: number
 	crop_n_layers_downscale_factor: number
-	min_area: number
-	iou_thresh: number
 }
 
 export type Dataset = 'oxford_flowers102' | 'imagenet2012' | 'oxford_iiit_pet'
@@ -23,8 +20,6 @@ export interface MetadataObject {
 		stability_score_thresh: number
 		crop_n_layers: number
 		crop_n_layers_downscale_factor: number
-		min_area: number
-		iou_thresh: number
 	}
 	segmentation_info: {
 		after_sam: number
@@ -39,6 +34,7 @@ export interface MetadataObject {
 		stability_score: number
 		crop_box: number[]
 		class_id: number
+		ious: { name: string; iou: number }
 	}[]
 	annotated_image: string
 }
@@ -70,22 +66,22 @@ export const ROUTES: RouteInfo[] = [
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	},
 	{
-		id: '/[dataset]/compare',
-		path: '/[oxford_flowers102]/compare',
+		id: '/[run]/[param]/[dataset]/compare',
+		path: '/pps_test/pps-32/oxford_flowers102/compare',
 		title: 'Compare Params',
 		description:
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	},
 	{
-		id: '/[dataset]/compare2',
-		path: '/[oxford_flowers102]/compare2',
+		id: '/[run]/[param]/[dataset]/[dataset]/compare2',
+		path: '/pps_test/pps-32/oxford_flowers102/compare2',
 		title: 'Compare Params 2',
 		description:
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	},
 	{
-		id: '/overview',
-		path: '/overview',
+		id: '/[run]/overview',
+		path: 'pps_test/overview',
 		title: 'Dataset Overview',
 		description:
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'

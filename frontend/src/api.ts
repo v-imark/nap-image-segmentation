@@ -12,13 +12,13 @@ export const PARAM_IDS = (run: string) => EXAMPLE_PARAMS[run].map((val) => val.i
 
 export const getImageNames = async () => {
 	const imagenet: string[] = await fetch(
-		'http://localhost:5173/data/test2/images/imagenet2012/image_names.json'
+		'http://localhost:5173/data/pps_test/images/imagenet2012/image_names.json'
 	).then((val) => val.json())
 	const oxford: string[] = await fetch(
-		'http://localhost:5173/data/test2/images/oxford_flowers102/image_names.json'
+		'http://localhost:5173/data/pps_test/images/oxford_flowers102/image_names.json'
 	).then((val) => val.json())
 	const oxford_pets: string[] = await fetch(
-		'http://localhost:5173/data/test2/images/oxford_iiit_pet/image_names.json'
+		'http://localhost:5173/data/pps_test/images/oxford_iiit_pet/image_names.json'
 	).then((val) => val.json())
 
 	return {
@@ -41,16 +41,14 @@ export function getImageUrl(name: string, dataset: Dataset, run: string, search?
 
 export const getMetaDataUrl = (paramId: string, dataset: string, run: string) => {
 	const param = EXAMPLE_PARAMS[run].find((val) => val.id == paramId) as Param
-	const shorts = ['pps', 'ppb', 'pit', 'sst', 'cnl', 'cnldf']
+	const shorts = ['pps', 'pit', 'sst', 'cnl', 'cnldf']
 	let datasetFolder = `${dataset}`
 	Object.entries(param).forEach(([, entry], index) => {
-		if (index != 0 && index - 1 < shorts.length) {
+		if (index != 0) {
 			datasetFolder += `_${shorts[index - 1]}-${entry}`
 		}
 	})
-	const ma = param.min_area == 0 ? `ma-${param.min_area}.0` : `ma-${param.min_area}`
-	const it = param.iou_thresh == 1 ? `it-${param.iou_thresh}.0` : `it-${param.iou_thresh}`
-	return `/data/${run}/${paramId}/${datasetFolder}_${ma}_${it}`
+	return `/data/${run}/${paramId}/${datasetFolder}`
 }
 
 export const getMetaData = async (paramId: string, name: string, dataset: string, run: string) => {
