@@ -8,6 +8,12 @@ const config = {
 		'dark',
 		{
 			pattern: /ring-([#e41a1c]|[#377eb8]|[#4daf4a])/
+		},
+		'data-[state=checked]:bg-[#e41a1c]',
+		'data-[state=checked]:bg-[#377eb8]',
+		'data-[state=checked]:bg-[#4daf4a]',
+		{
+			pattern: /bg-([#e41a1c]|[#377eb8]|[#4daf4a])/
 		}
 	],
 	theme: {

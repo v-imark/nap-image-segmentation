@@ -30,9 +30,15 @@ export const getImageNames = async () => {
 
 export const IMAGE_NAMES = await getImageNames()
 
-export function getImageUrl(name: string, dataset: Dataset, run: string, search?: boolean) {
+export function getImageUrl(
+	name: string,
+	dataset: Dataset,
+	run: string,
+	imageNames: string[],
+	search?: boolean
+) {
 	if (search) {
-		const imgName = IMAGE_NAMES[dataset].find((value) => value.split('.')[0] == name)
+		const imgName = imageNames.find((value) => value.split('.')[0] == name)
 		return `/data/${run}/images/${dataset}/test/${imgName}`
 	}
 
@@ -248,4 +254,8 @@ export const sortBars = (data: MetadataObject[], key: BarSorting, ascending: boo
 			? a.segmentation_info[key] - b.segmentation_info[key]
 			: b.segmentation_info[key] - a.segmentation_info[key]
 	)
+}
+
+export const getRoute = (run: string, param: string, dataset: string, current: string | null) => {
+	return current?.replace('[run]', run).replace('[param]', param).replace('[dataset]', dataset)
 }

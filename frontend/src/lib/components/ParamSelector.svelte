@@ -1,11 +1,10 @@
 <script lang="ts">
 	import * as Select from './ui/select'
-	import { run, selected_params } from '../../stores'
-	import { PARAM_IDS } from '../../api'
+	import { getRoute } from '../../api'
+	import { page } from '$app/stores'
 
-	$: selected = { value: $selected_params }
-
-	$: selected_params.set(selected.value)
+	let runs = Object.keys($page.data.params)
+	$: selected = { value: 'pps-32' }
 </script>
 
 <Select.Root bind:selected>
@@ -13,8 +12,16 @@
 		<Select.Value placeholder="Select params" />
 	</Select.Trigger>
 	<Select.Content>
-		{#each PARAM_IDS($run) as id}
-			<Select.Item value={id}>{id}</Select.Item>
+		{#each runs as run}
+			<Select.Group>
+				<Select.Separator />
+				<Select.Label>{run}</Select.Label>
+				{#each $page.data.params[run] as param}
+					<a href={getRoute(run, param.id, $page.params.dataset, $page.route.id)}>
+						<Select.Item value={param.id} label={param.id}></Select.Item>
+					</a>
+				{/each}
+			</Select.Group>
 		{/each}
 	</Select.Content>
 </Select.Root>
