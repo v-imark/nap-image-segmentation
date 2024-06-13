@@ -35,6 +35,7 @@ export type Mask = {
 	stability_score: number
 	crop_box: number[]
 	class_id: number
+	bbox: number[]
 	ious: { name: string; iou: number }[]
 }
 
@@ -85,7 +86,7 @@ function indexOfMax(arr: number[]) {
 	return maxIndex
 }
 
-export const getColor = (param: ParamSliderData, mask: Mask, masks: Mask[]) => {
+export const getFilterClass = (param: ParamSliderData, mask: Mask, masks: Mask[]) => {
 	if (
 		mask.predicted_iou < param.sam_params?.pred_iou_thresh ||
 		mask.stability_score < param.sam_params?.stability_score_thresh
@@ -104,6 +105,38 @@ export const getColor = (param: ParamSliderData, mask: Mask, masks: Mask[]) => {
 	}
 
 	return 2
+}
+
+const ranges = {
+	area: [0, 1],
+	predicted_iou: [0.88, 1.05],
+	stability_score: [0.95, 1]
+}
+
+export const getBgColor = (
+	colormap: string = 'viridis',
+	strategy: string,
+	param: ParamSliderData,
+	mask: Mask,
+	masks: Mask[],
+	index: number,
+	key: 'area' | 'predicted_iou' | 'stability_score' = 'predicted_iou'
+) => {
+	if (strategy == 'index') {
+		return `bg-${colormap}-default-${index % 20}`
+	}
+	if (strategy == 'filter') {
+		const class_id = getFilterClass(param, mask, masks)
+		return `bg-${colormap}-${strategy}-${class_id}`
+	}
+	if (strategy == 'value') {
+		let score = mask[key]
+		if (key == 'area') {
+			score = score / (mask.crop_box[2] * mask.crop_box[3])
+		}
+		const value = (score - ranges[key][0]) / (ranges[key][1] - ranges[key][0])
+		return `bg-${colormap}-${strategy}-${Math.round(value * 100)}`
+	}
 }
 
 export type Sorting = 'None' | 'area' | 'stability_score' | 'predicted_iou' | 'class_id'
@@ -125,26 +158,26 @@ export const ROUTES: RouteInfo[] = [
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	},
 	{
-		id: '/[run]/[param]/[dataset]/compare',
-		path: '/pps_test/pps-32/oxford_flowers102/compare',
+		id: '/[dataset]/[runLeft]x[runRight]/[paramLeft]x[paramRight]',
+		path: '/oxford_flowers102/pps_testxpps_test/pps-32xpps-16',
 		title: 'Multi-config comparison',
 		description:
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	},
 	{
-		id: '/[run]/[param]/[dataset]/compare2',
-		path: '/pps_test/pps-32/oxford_flowers102/compare2',
+		id: '/[run]/[param]/[dataset]',
+		path: '/pps_test/pps-32/oxford_flowers102',
 		title: 'Single-config comparison',
 		description:
 			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
-	},
-	{
-		id: '/[run]/overview',
-		path: '/pps_test/overview',
-		title: 'Dataset Overview',
-		description:
-			'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
 	}
+	// {
+	// 	id: '/[run]/overview',
+	// 	path: '/pps_test/overview',
+	// 	title: 'Dataset Overview',
+	// 	description:
+	// 		'This action cannot be undone. This will permanently delete your account and remove your datafrom our servers.'
+	// }
 ]
 
 export const formatRouteParam = (param: string) => {

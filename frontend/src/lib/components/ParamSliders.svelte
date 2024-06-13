@@ -4,7 +4,9 @@
 	import { Separator } from './ui/separator'
 	import Label from './ui/label/label.svelte'
 	import InfoTooltip from './InfoTooltip.svelte'
+	import ParamSelector from './ParamSelector.svelte'
 	export let params: ParamSliderData
+	export let column: number | undefined
 	const paramKeys = {
 		sam_params: ParamKeys,
 		filters: FilterKeys
@@ -25,10 +27,13 @@
 </script>
 
 <div class="flex w-full flex-row space-x-3">
-	<div class="flec basis-1/2 flex-col space-y-3">
-		<InfoTooltip>
-			<Label class="text-lg">SAM params</Label>
-		</InfoTooltip>
+	<div class="flex basis-1/2 flex-col space-y-3">
+		<div class="flex justify-between">
+			<InfoTooltip text="Change parameter setup by the select box or changing the sliders.">
+				<Label class="text-lg">SAM params</Label>
+			</InfoTooltip>
+			{#if column != undefined}<ParamSelector {column} />{/if}
+		</div>
 		{#if params.sam_params?.points_per_side}
 			{#each paramKeys.sam_params as paramKey}
 				<ParamSlider
@@ -40,8 +45,10 @@
 		{/if}
 	</div>
 	<Separator orientation="vertical" />
-	<div class="flec basis-1/2 flex-col space-y-3">
-		<Label class="text-lg">Filters</Label>
+	<div class="flex basis-1/2 flex-col space-y-3">
+		<InfoTooltip text="Apply additional filtering by moving the sliders.">
+			<Label class="text-lg">Filters</Label>
+		</InfoTooltip>
 		{#each paramKeys.filters as paramKey}
 			<ParamSlider
 				bind:value={params.filters[paramKey]}

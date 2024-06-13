@@ -6,7 +6,6 @@
 </script>
 
 <div class="flex space-x-3">
-	<ParamSelector />
 	<DatasetSelector />
 	<slot />
 </div>

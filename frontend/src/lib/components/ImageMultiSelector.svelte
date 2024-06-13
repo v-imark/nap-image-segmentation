@@ -1,23 +1,33 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { getImageUrl } from '../../api'
-	import { selectedImage } from '../../stores'
+	import { selectedImages } from '../../stores'
 	import type { Dataset } from '../../types'
 	import * as Select from './ui/select'
 	export let dataset: Dataset = 'oxford_flowers102'
 	export let imageNames: string[]
-	let selected = { value: imageNames.find((name) => name == $selectedImage) ?? imageNames[0] }
+	$: selected = $selectedImages.map((name) => ({ value: name }))
 </script>
 
-<Select.Root {selected} onSelectedChange={(val) => ($selectedImage = val?.value ?? '')}>
-	<Select.Trigger class={dataset == 'imagenet2012' ? 'w-64' : 'w-48'}>
-		<Select.Value placeholder="Select image" />
+<Select.Root
+	{selected}
+	onSelectedChange={(vals) => {
+		if (vals) {
+			$selectedImages = vals.map((val) => val.value)
+		} else {
+			$selectedImages = []
+		}
+	}}
+	multiple
+>
+	<Select.Trigger class="w-72">
+		<div>Selected images: {$selectedImages.length}</div>
 	</Select.Trigger>
 	<Select.Content class="max-h-[800px] overflow-y-auto">
 		{#each imageNames as name}
-			<Select.Item value={name} label={name}>
+			<Select.Item value={name}>
 				<img
-					src={getImageUrl(name, dataset, $page.params.runLeft, imageNames)}
+					src={getImageUrl(name, dataset, $page.params.run, imageNames)}
 					alt={name}
 					class="h-[120px] w-[120px] object-contain"
 				/>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Label } from './ui/label'
+	import Progress from './ui/progress/progress.svelte'
 	import { Slider } from './ui/slider'
 
 	export let value
@@ -15,11 +16,15 @@
 		<Label class="w-12">{label}</Label>
 		<Label class="w-12 text-right">{sliderVal[0]}</Label>
 	</div>
-	<Slider
-		bind:value={sliderVal}
-		min={maxMinStep.min}
-		max={maxMinStep.max}
-		step={maxMinStep.step}
-		disabled={maxMinStep.disable}
-	></Slider>
+	{#if !maxMinStep.disable}
+		<Slider
+			bind:value={sliderVal}
+			min={maxMinStep.min}
+			max={maxMinStep.max}
+			step={maxMinStep.step}
+			disabled={maxMinStep.disable}
+		></Slider>
+	{:else}
+		<Progress value={(value - maxMinStep.min) / (maxMinStep.max - maxMinStep.min)} max={1} />
+	{/if}
 </div>
