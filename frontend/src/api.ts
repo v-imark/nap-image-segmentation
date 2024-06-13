@@ -1,5 +1,5 @@
 //import { metaData } from './stores'
-import type { BarSorting, Dataset, Metadata, MetadataObject, Param, Sorting } from './types'
+import type { BarSorting, Dataset, MetadataObject, Param, Sorting } from './types'
 
 export const loadParams = async (): Promise<{ [key: string]: Param[] }> => {
 	const response = await fetch('http://localhost:5173/test_params.json')
@@ -8,7 +8,7 @@ export const loadParams = async (): Promise<{ [key: string]: Param[] }> => {
 }
 
 export const EXAMPLE_PARAMS: { [key: string]: Param[] } = await loadParams()
-export const PARAM_IDS = (run: string) => EXAMPLE_PARAMS[run].map((val) => val.id)
+// export const PARAM_IDS = (run: string) => EXAMPLE_PARAMS[run].map((val) => val.id)
 
 export const getImageNames = async () => {
 	const imagenet: string[] = await fetch(
@@ -28,11 +28,17 @@ export const getImageNames = async () => {
 	}
 }
 
-export const IMAGE_NAMES = await getImageNames()
+// export const IMAGE_NAMES = await getImageNames()
 
-export function getImageUrl(name: string, dataset: Dataset, run: string, search?: boolean) {
+export function getImageUrl(
+	name: string,
+	dataset: Dataset,
+	run: string,
+	imageNames: string[],
+	search?: boolean
+) {
 	if (search) {
-		const imgName = IMAGE_NAMES[dataset].find((value) => value.split('.')[0] == name)
+		const imgName = imageNames.find((value) => value.split('.')[0] == name)
 		return `/data/${run}/images/${dataset}/test/${imgName}`
 	}
 
@@ -61,13 +67,13 @@ export const getMetaData = async (paramId: string, name: string, dataset: string
 	return data
 }
 
-export const getAllMetaDataForImage = async (name: string, dataset: string, run: string) => {
-	const metadata: Metadata = {}
-	for (const id of PARAM_IDS(run)) {
-		metadata[id] = await getMetaData(id, name, dataset, run)
-	}
-	return metadata
-}
+// export const getAllMetaDataForImage = async (name: string, dataset: string, run: string) => {
+// 	const metadata: Metadata = {}
+// 	for (const id of PARAM_IDS(run)) {
+// 		metadata[id] = await getMetaData(id, name, dataset, run)
+// 	}
+// 	return metadata
+// }
 
 export const getRelativePath = (path: string) => {
 	const result = path.toString().replace(/\\/g, '/')
@@ -248,4 +254,23 @@ export const sortBars = (data: MetadataObject[], key: BarSorting, ascending: boo
 			? a.segmentation_info[key] - b.segmentation_info[key]
 			: b.segmentation_info[key] - a.segmentation_info[key]
 	)
+}
+
+export const getRoute = (
+	runs: string[],
+	params: string[],
+	dataset: string,
+	current: string | null
+) => {
+	if (params.length > 1) {
+		return current
+			?.replace('[runLeftxrunRight]', `${runs[0]}x${runs[1]}`)
+			.replace('[paramLeftxparamRight]', `${params[0]}x${params[1]}`)
+			.replace('[dataset]', dataset)
+	}
+
+	return current
+		?.replace('[run]', runs[0])
+		.replace('[param]', params[0])
+		.replace('[dataset]', dataset)
 }

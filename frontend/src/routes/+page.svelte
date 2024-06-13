@@ -1,9 +1,8 @@
 <script lang="ts">
-	import MainPage from '$lib/components/MainPage.svelte'
 	import Navigator from '$lib/components/Navigator.svelte'
-	import type { PageData } from './$types'
+	// import type { PageData } from './$types'
 
-	export let data: PageData
+	// export let data: PageData
 </script>
 
 <!-- <MainPage /> -->

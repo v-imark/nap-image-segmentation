@@ -1,23 +1,54 @@
 <script lang="ts">
 	import { page } from '$app/stores'
+	import { cn } from '$lib/utils'
+	import { crossfade } from 'svelte/transition'
 	import { ROUTES } from '../../types'
 	import { Button } from './ui/button'
-	import { Label } from './ui/label'
+	import { cubicInOut } from 'svelte/easing'
 
-	export let direction: 'horizontal' | 'vertical' = 'horizontal'
-	export let drawer = false
-
-	const directionStyle = {
-		horizontal: 'flex-row space-x-2',
-		vertical: 'flex-col space-y-2'
-	}
-	const routes = drawer ? ROUTES : ROUTES.slice(1)
+	const [send, receive] = crossfade({
+		duration: 250,
+		easing: cubicInOut
+	})
 </script>
 
-<div class="flex {directionStyle[direction]}">
-	{#each routes as route}
+<nav class="flex w-full flex-row space-x-2">
+	{#each ROUTES as route}
+		{@const isActive = $page.route.id === route.id}
 		<Button
 			href={route.path}
+			variant="ghost"
+			class={cn(
+				!isActive && 'hover:bg-background',
+				'hover:bg-muted-foreground relative justify-start rounded-b-none rounded-t-2xl py-2'
+			)}
+			data-sveltekit-noscroll
+		>
+			{#if isActive}
+				<div
+					class="bg-background absolute inset-0 rounded-t-2xl"
+					in:send={{ key: 'active-sidebar-tab' }}
+					out:receive={{ key: 'active-sidebar-tab' }}
+				/>
+			{/if}
+			<div
+				class={cn(
+					'text-foreground relative text-lg uppercase',
+					!isActive && 'text-primary-foreground'
+				)}
+			>
+				{route.title}
+			</div>
+		</Button>
+	{/each}
+</nav>
+
+<!-- <div class="flex {directionStyle[direction]}">
+	{#each routes as route}
+		<Button
+			on:click={() => {
+				goto(route.path)
+			}}
 			variant={drawer ? 'ghost' : 'outline'}
 			class="h-fit {$page.route.id == route.id && 'bg-accent'}"
 		>
@@ -40,4 +71,4 @@
 			</div>
 		</Button>
 	{/each}
-</div>
+</div> -->
